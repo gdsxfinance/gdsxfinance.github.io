@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎮 GDSX GAME CENTER</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<style>
+:root {
+  --gold:#ffd700;
+  --neon:#00ffd5;
+}
+body {
+  background: radial-gradient(circle at top,#000 40%,#111 100%);
+  color:white;
+  font-family:"Poppins","Noto Sans Thai",sans-serif;
+  text-align:center;
+  margin:0;
+  padding:0;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+.logo {
+  width:100px;height:100px;border-radius:50%;
+  object-fit:cover;margin-top:20px;
+  box-shadow:0 0 30px rgba(255,215,0,0.8);
+  animation:spin 10s linear infinite;
+}
+@keyframes spin {from{transform:rotate(0)}to{transform:rotate(360deg)}}
+h1 {
+  color:var(--gold);
+  text-shadow:0 0 15px var(--gold),0 0 25px #ffb700;
+  font-size:2rem;
+  margin:15px 0 10px;
+}
+h2 {
+  color:var(--neon);
+  font-size:1rem;
+  text-shadow:0 0 10px var(--neon);
+  margin-bottom:30px;
+}
+.panel {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:20px;
+  margin-top:20px;
+}
+.card {
+  background:#111;
+  border:1px solid #333;
+  border-radius:15px;
+  width:220px;
+  padding:20px;
+  transition:0.3s;
+  box-shadow:0 0 10px rgba(255,215,0,0.2);
+}
+.card:hover {
+  transform:translateY(-5px);
+  box-shadow:0 0 25px rgba(255,215,0,0.5);
+}
+.card img {
+  width:80px;
+  height:80px;
+  border-radius:10px;
+  object-fit:cover;
+  margin-bottom:10px;
+}
+.card button {
+  background:var(--gold);
+  border:none;
+  padding:10px 20px;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.25s;
+}
+.card button:hover {box-shadow:0 0 20px var(--gold);}
+.footer {
+  margin-top:40px;
+  color:#888;
+  font-size:0.8rem;
+}
+.home {
+  margin-top:20px;
+  background:var(--neon);
+  color:#000;
+  border:none;
+  padding:10px 25px;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.25s;
+}
+.home:hover {box-shadow:0 0 25px var(--neon);}
+</style>
+</head>
+<body>
+
+<img src="logo.png" class="logo" alt="GDSX">
+<h1>🎮 GDSX GAME CENTER</h1>
+<h2>Play • Earn • Enjoy — สนุกและรับรางวัลด้วยเหรียญ GDSX</h2>
+
+<div class="panel">
+
+  <div class="card">
+    <img src="snake.jpg" alt="Snake of Gold">
+    <h3>🐍 Snake of Gold</h3>
+    <p>เกมงูทองคำสุดคลาสสิก ล่าเหรียญ GDSX สุดมันส์!</p>
+    <button onclick="location.href='snake.html'">▶️ เล่นเลย</button>
+  </div>
+
+  <div class="card">
+    <img src="luckydraw.jpg" alt="Lucky Draw">
+    <h3>🎁 Lucky Draw</h3>
+    <p>สุ่มของรางวัลประจำวัน ลุ้นโชคทองคำทุกวัน!</p>
+    <button onclick="location.href='luckydraw.html'">▶️ เปิดกล่อง</button>
+  </div>
+
+  <div class="card">
+    <img src="fortune.jpg" alt="Fortune Box">
+    <h3>🔮 Fortune Box</h3>
+    <p>กล่องพยากรณ์ทองคำ — เปิดได้วันละครั้ง!</p>
+    <button onclick="location.href='fortune.html'">▶️ เปิดกล่อง</button>
+  </div>
+
+  <div class="card">
+    <img src="wheel.jpg" alt="Lucky Wheel">
+    <h3>🎡 Lucky Wheel</h3>
+    <p>หมุนวงล้อทองคำ ลุ้นรางวัลสุดอลังการ!</p>
+    <button onclick="location.href='wheel.html'">▶️ หมุนเลย</button>
+  </div>
+
+</div>
+
+<button class="home" onclick="location.href='index.html'">🏠 กลับหน้าแรก</button>
+
+<div class="footer">
+  © 2025 GDSX Finance — Powered by Gold Digital System X
+</div>
+
+</body>
+</html>
