@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌾 GDSX FARM ULTRA++</title>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<style>
+body {
+  background: radial-gradient(circle at top,#000 40%,#111 100%);
+  color:#fff; font-family:"Poppins","Noto Sans Thai",sans-serif;
+  text-align:center; padding:80px 20px; margin:0;
+}
+h1 {color:#ffd700;text-shadow:0 0 15px #ffd700,0 0 30px #ffb700;}
+.panel {
+  display:inline-block; background:#111; border:1px solid #333;
+  border-radius:12px; padding:25px 30px; margin:15px; min-width:260px;
+  box-shadow:0 0 15px rgba(255,215,0,0.2);
+}
+input {
+  padding:10px 12px; border-radius:8px; border:none; width:180px;
+  text-align:center; font-size:1rem;
+}
+button {
+  background:#ffd700; border:none; padding:12px 22px;
+  border-radius:8px; font-weight:bold; cursor:pointer;
+  margin:8px; transition:0.25s;
+}
+button:hover {box-shadow:0 0 20px #ffd700;}
+#connect {background:#00ffd5;color:#000;}
+.footer {margin-top:40px;color:#888;font-size:0.8rem;}
+</style>
+</head>
+<body>
+  <h1>🌾 GDSX FARM ULTRA++</h1>
+  <p>The Future of Digital Gold — ระบบทองคำดิจิทัลแห่งยุคใหม่</p>
+
+  <div id="walletInfo" class="panel">
+    <p>Wallet: <span id="wallet">Not Connected</span></p>
+    <p>Your Stake: <span id="stake">0</span> GDSX</p>
+    <p>Pending Rewards: <span id="rewards">0</span> GDSX</p>
+  </div>
+
+  <div class="panel">
+    <input type="number" id="amount" placeholder="Enter amount GDSX">
+    <div>
+      <button onclick="deposit()">Deposit</button>
+      <button onclick="withdraw()">Withdraw</button>
+      <button onclick="claim()">Claim</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <button id="connect" onclick="connectWallet()">🔗 Connect Wallet</button>
+    <a href="index.html"><button>🏠 Back Home</button></a>
+  </div>
+
+  <div class="footer">© 2025 GDSX Finance — Powered by Gold Digital System X</div>
+
+<script>
+const farmAddress = "0xEc9913d971e43f5b4a0d260381e60595DCb7268e";
+const farmABI = [
+  "function deposit(uint256 _amount) public",
+  "function withdraw(uint256 _amount) public",
+  "function claim() public",
+  "function getUserData(address _user) public view returns(uint256 stake,uint256 pending)"
+];
+
+let provider, signer, contract, userAddress;
+
+async function connectWallet() {
+  if (!window.ethereum) return alert("⚠️ Please install MetaMask");
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  signer = provider.getSigner();
+  userAddress = await signer.getAddress();
+  document.getElementById("wallet").textContent = userAddress.slice(0,6)+"..."+userAddress.slice(-4);
+  contract = new ethers.Contract(farmAddress, farmABI, signer);
+  loadData();
+}
+
+async function loadData() {
+  try {
+    const data = await contract.getUserData(userAddress);
+    document.getElementById("stake").textContent = parseFloat(ethers.utils.formatUnits(data[0],18)).toFixed(4);
+    document.getElementById("rewards").textContent = parseFloat(ethers.utils.formatUnits(data[1],18)).toFixed(4);
+  } catch(e){ console.log(e); }
+}
+
+async function deposit() {
+  const amt = document.getElementById("amount").value;
+  if(!amt) return alert("Enter amount");
+  try {
+    const tx = await contract.deposit(ethers.utils.parseUnits(amt,18));
+    await tx.wait(); alert("✅ Deposit success!"); loadData();
+  } catch(e){ alert("⚠️ Transaction failed"); console.log(e); }
+}
+
+async function withdraw() {
+  const amt = document.getElementById("amount").value;
+  if(!amt) return alert("Enter amount");
+  try {
+    const tx = await contract.withdraw(ethers.utils.parseUnits(amt,18));
+    await tx.wait(); alert("✅ Withdraw success!"); loadData();
+  } catch(e){ alert("⚠️ Transaction failed"); console.log(e); }
+}
+
+async function claim() {
+  try {
+    const tx = await contract.claim();
+    await tx.wait(); alert("🎉 Rewards claimed!");
+    loadData();
+  } catch(e){ alert("⚠️ Claim failed"); console.log(e); }
+}
+</script>
+</body>
+</html>
