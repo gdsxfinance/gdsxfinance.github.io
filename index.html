@@ -220,3 +220,36 @@ async function claim(){if(!signer)return connect();try{showToast("Claiming...");
 function showAirdropComingSoon(){updatePopupLang();document.getElementById("popup").style.display="block";}
 function closePopup(){document.getElementById("popup").style.display="none";}
 function updatePopupLang(){const title=document.getElementById("popup-title");const text=document.getElementById("popup-text");if(lang==="en"){title.textContent="🚀 Airdrop Coming Soon!";text.innerHTML='Join early and be part of the next revolution in <b>Digital Gold</b>.<br>The future belongs to those who believe early. 💎';}else{title.textContent
+    title.textContent="🚀 Airdrop กำลังจะมาเร็ว ๆ นี้!";
+    text.innerHTML='เข้าร่วมก่อนใครและเป็นส่วนหนึ่งของการปฏิวัติ <b>ทองคำดิจิทัล</b>.<br>อนาคตเป็นของผู้ที่เชื่อมั่นตั้งแต่ต้น 💎';
+  }
+}
+function toggleMenu(){
+  const menu=document.getElementById("popupMenu");
+  menu.classList.toggle("active");
+  document.addEventListener("click",e=>{
+    if(!menu.contains(e.target)&&!e.target.closest(".menu-toggle"))menu.classList.remove("active");
+  });
+}
+function toggleLang(){
+  lang=(lang==="en")?"th":"en";
+  const text={
+    en:{wallet:"Wallet",total:"Total GDSX",stake:"Your Stake",reward:"Pending Rewards",deposit:"Deposit",withdraw:"Withdraw",claim:"Claim",buy:"BUY GDSX",refresh:"Refresh",placeholder:"Enter amount GDSX"},
+    th:{wallet:"กระเป๋า",total:"ยอดรวม GDSX",stake:"ยอดฝาก",reward:"รางวัลค้างรับ",deposit:"ฝาก",withdraw:"ถอน",claim:"รับรางวัล",buy:"ซื้อ GDSX",refresh:"รีเฟรช",placeholder:"กรอกจำนวน GDSX"}
+  }[lang];
+  document.getElementById("walletBox").childNodes[0].textContent=text.wallet;
+  document.getElementById("totalBox").childNodes[0].textContent=text.total;
+  document.getElementById("stakeBox").childNodes[0].textContent=text.stake;
+  document.getElementById("rewardBox").childNodes[0].textContent=text.reward;
+  document.getElementById("btnDeposit").textContent=text.deposit;
+  document.getElementById("btnWithdraw").textContent=text.withdraw;
+  document.getElementById("btnClaim").textContent=text.claim;
+  document.getElementById("btnBuy").textContent=text.buy;
+  document.getElementById("btnRefresh").textContent=text.refresh;
+  document.getElementById("amount").placeholder=text.placeholder;
+  document.getElementById("lang-btn").textContent=(lang==="en")?"EN":"TH";
+  updatePopupLang();
+}
+</script>
+</body>
+</html>
