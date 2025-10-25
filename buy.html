@@ -1,120 +1,157 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💰 Buy GDSX</title>
+<title>💰 BUY GDSX — Digital Gold System</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <style>
+:root { --gold:#ffd700; --neon:#00ffd5; }
 body {
-  font-family: "Poppins","Noto Sans Thai",sans-serif;
   background: radial-gradient(circle at top,#000 40%,#111 100%);
-  color:#fff;
-  text-align:center;
-  padding:100px 20px;
-  overflow:hidden;
+  color:#fff; font-family:"Poppins","Noto Sans Thai",sans-serif;
+  text-align:center; overflow-x:hidden; min-height:100vh; margin:0;
 }
-h1 {
-  font-size:2rem;
-  margin-bottom:40px;
-  color:#ffd700;
-  text-shadow:0 0 15px #ffde70,0 0 30px #ffd700;
+.logo {
+  width:90px; height:90px; border-radius:50%;
+  object-fit:cover; margin-top:25px;
+  box-shadow:0 0 30px rgba(255,215,0,0.8);
+  animation:spin 10s linear infinite;
 }
+@keyframes spin {from{transform:rotate(0)}to{transform:rotate(360deg)}}
+h1 {color:var(--gold);text-shadow:0 0 10px rgba(255,215,0,.6);font-size:1.8em;margin-top:10px;}
+.subtitle {color:var(--neon);font-size:.9em;margin-bottom:20px;}
 .panel {
-  background:#111;
-  border:1px solid #333;
-  border-radius:10px;
-  display:inline-block;
-  padding:30px 40px;
-  box-shadow:0 0 20px rgba(255,215,0,0.2);
+  background:rgba(20,20,20,.85);border:1px solid var(--gold);
+  border-radius:16px;padding:25px;margin:10px auto 100px auto;
+  width:90%;max-width:420px;box-shadow:0 0 15px rgba(255,215,0,.3);
 }
 input {
-  width:200px;
-  padding:10px;
-  margin-top:10px;
-  border:none;
-  border-radius:5px;
-  text-align:center;
+  width:100%;padding:10px;margin-top:8px;border-radius:10px;
+  border:1px solid rgba(255,215,0,.3);text-align:center;
+  background:#111;color:#fff;font-size:1em;
 }
 button {
-  background:#ffd700;
-  border:none;
-  padding:10px 25px;
-  margin-top:15px;
-  border-radius:8px;
-  font-weight:bold;
-  cursor:pointer;
-  transition:0.3s;
+  background:linear-gradient(90deg,#222,#444);
+  color:var(--gold);border:1px solid var(--gold);
+  border-radius:10px;padding:10px 20px;margin:5px;cursor:pointer;
+  transition:.3s;
 }
-button:hover {box-shadow:0 0 25px #ffd700;}
-#connect {background:#00ffd5;color:#000;}
-.footer {
-  margin-top:40px;
-  color:#888;
-  font-size:0.8rem;
+button:hover {background:rgba(255,215,0,0.2);}
+button.buy {
+  background:linear-gradient(90deg,#00ffcc,#00cc99);
+  color:#111;font-weight:700;border:none;border-radius:12px;
+  padding:12px 25px;cursor:pointer;box-shadow:0 0 20px rgba(0,255,204,.7);
 }
+.toast {
+  position:fixed;left:50%;bottom:60px;transform:translateX(-50%);
+  background:rgba(20,20,20,.95);border:1px solid var(--gold);
+  color:#fff;padding:8px 14px;border-radius:10px;
+  box-shadow:0 0 12px rgba(255,215,0,.35);
+  display:none;z-index:1600;
+}
+.toast.show{display:block;}
+.connect-btn {
+  position:fixed;top:12px;right:15px;width:55px;height:55px;
+  border-radius:50%;border:none;cursor:pointer;
+  background:radial-gradient(circle,#ffcc33 10%,#b8860b 80%);
+  box-shadow:0 0 20px rgba(255,215,0,0.8);
+  animation:btnPulse 2s infinite alternate;
+}
+@keyframes btnPulse {
+  from{box-shadow:0 0 10px rgba(255,215,0,0.5);}
+  to{box-shadow:0 0 25px rgba(255,255,150,1);}
+}
+.connect-btn:after {content:"🪙";font-size:22px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
+footer {
+  position:fixed;bottom:0;background:#111;border-top:2px solid rgba(255,215,0,0.5);
+  width:100%;overflow:hidden;height:30px;
+}
+footer p {
+  display:inline-block;white-space:nowrap;color:var(--gold);font-weight:600;font-size:.9em;
+  animation:scrollText 18s linear infinite;text-shadow:0 0 6px var(--gold);margin-top:2px;
+}
+@keyframes scrollText {from{transform:translateX(100%);}to{transform:translateX(-100%);} }
 </style>
 </head>
+
 <body>
-  <h1>💰 Buy GDSX</h1>
-  <p>ซื้อเหรียญ <b>GDSX</b> ด้วย USDT ได้ทันทีผ่าน Smart Contract</p>
+<img class="logo" src="logo.png" alt="GDSX Logo">
+<h1>💰 BUY GDSX</h1>
+<p class="subtitle">ซื้อเหรียญ GDSX ด้วย USDT — ระบบทองคำดิจิทัลแห่งยุคใหม่</p>
 
-  <div class="panel">
-    <p>อัตราแลกเปลี่ยน (Rate): <b>10 GDSX / 1 USDT</b></p>
-    <input type="number" id="usdtAmount" placeholder="ใส่จำนวน USDT">
-    <div>
-      <button onclick="buy()">ซื้อ GDSX</button>
-    </div>
-    <div style="margin-top:15px;">
-      <button id="connect" onclick="connectWallet()">🔗 Connect Wallet</button>
-      <a href="index.html"><button>🏠 Back Home</button></a>
-    </div>
-  </div>
+<button class="connect-btn" onclick="connect()"></button>
 
-  <div class="footer">© 2025 GDSX Finance — Powered by Gold Digital System X</div>
+<div class="panel">
+  <p>1 USDT = <b>10 GDSX</b></p>
+  <p>Your USDT Balance: <b id="usdtBal">0.0000</b></p>
+  <input type="number" id="usdtAmount" placeholder="Enter amount (USDT)">
+  <p id="gdsxResult">You will receive: 0 GDSX</p>
+  <button class="buy" onclick="buyGDSX()">💰 BUY NOW</button>
+</div>
+
+<footer><p>🌟 The Future of Digital Gold • GDSX Finance © 2025 🌟</p></footer>
+<div id="toast" class="toast"></div>
 
 <script>
-const contractAddress = "0xe0323a9AdD98F14939ddeb62DC4076AfeE94DFad";
-const abi = [
-  "function rate() view returns(uint256)",
-  "function buy(uint256 usdtAmount) public",
-  "function usdt() view returns(address)",
-  "function gdsx() view returns(address)",
-  "function treasury() view returns(address)"
+const CONTRACT="0x9E8f57E617c1520FD55A0B732C835EAC73a40F34";
+const USDT="0x55d398326f99059fF775485246999027B3197955";
+const rate=10;
+let provider,signer,account,usdt,contract;
+const abiUSDT=[
+"function approve(address spender,uint256 value) external returns(bool)",
+"function balanceOf(address owner) view returns(uint256)"
+];
+const abiPay=[
+"function buyGDSX(uint256 usdtAmount) external",
+"function rate() view returns(uint256)"
 ];
 
-let provider, signer, contract;
+const $=id=>document.getElementById(id);
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
 
-async function connectWallet() {
-  if (!window.ethereum) return alert("⚠️ โปรดติดตั้ง MetaMask ก่อน");
-  provider = new ethers.providers.Web3Provider(window.ethereum);
-  await provider.send("eth_requestAccounts", []);
-  signer = provider.getSigner();
-  contract = new ethers.Contract(contractAddress, abi, signer);
-  alert("✅ Wallet connected!");
+async function connect(){
+ try{
+  if(!window.ethereum){alert("Install MetaMask");return;}
+  provider=new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send("eth_requestAccounts",[]);
+  signer=provider.getSigner();
+  account=await signer.getAddress();
+  usdt=new ethers.Contract(USDT,abiUSDT,signer);
+  contract=new ethers.Contract(CONTRACT,abiPay,signer);
+  toast("✅ Wallet connected");
+  updateBalance();
+ }catch(e){console.log(e);toast("❌ Connect failed");}
 }
 
-async function buy() {
-  try {
-    const amt = document.getElementById("usdtAmount").value;
-    if (!amt || amt <= 0) return alert("กรุณาใส่จำนวน USDT");
+async function updateBalance(){
+ try{
+  const bal=await usdt.balanceOf(account);
+  const dec=ethers.utils.formatUnits(bal,18);
+  $("usdtBal").textContent=parseFloat(dec).toFixed(4);
+ }catch(e){$("usdtBal").textContent="—";}
+}
 
-    const usdtAddr = await contract.usdt();
-    const usdt = new ethers.Contract(usdtAddr, [
-      "function approve(address spender,uint256 amount) public returns(bool)"
-    ], signer);
+$("usdtAmount").addEventListener("input",()=>{
+ const v=parseFloat($("usdtAmount").value||0);
+ $("gdsxResult").textContent=`You will receive: ${(v*rate).toFixed(2)} GDSX`;
+});
 
-    const approveTx = await usdt.approve(contractAddress, ethers.utils.parseUnits(amt, 18));
-    await approveTx.wait();
-
-    const tx = await contract.buy(ethers.utils.parseUnits(amt, 18));
-    await tx.wait();
-
-    alert(`🎉 ซื้อสำเร็จ! ได้รับ GDSX จำนวน ${amt * 10} เหรียญ`);
-  } catch (err) {
-    console.error(err);
-    alert("❌ Transaction failed");
-  }
+async function buyGDSX(){
+ if(!signer)return connect();
+ const amt=$("usdtAmount").value;
+ if(!amt||amt<=0)return toast("Enter amount > 0");
+ const val=ethers.utils.parseUnits(amt,18);
+ try{
+  toast("🔄 Approving USDT…");
+  const tx1=await usdt.approve(CONTRACT,val);await tx1.wait();
+  toast("💰 Buying GDSX…");
+  const tx2=await contract.buyGDSX(val);await tx2.wait();
+  toast("✅ Purchase complete!");
+  $("usdtAmount").value="";$("gdsxResult").textContent="You will receive: 0 GDSX";
+  updateBalance();
+ }catch(e){console.log(e);toast("❌ Transaction failed");}
 }
 </script>
 </body>
