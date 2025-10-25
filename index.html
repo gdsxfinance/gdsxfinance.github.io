@@ -129,29 +129,7 @@ footer p {
   transition:.3s;
 }
 .game-center-btn:hover {box-shadow:0 0 30px rgba(255,255,150,1);}
-@keyframes shine {
-  from { text-shadow: 0 0 8px #ffd700, 0 0 16px #ffb700; }
-  to   { text-shadow: 0 0 20px #fff4a0, 0 0 30px #ffe066; }
-}
-
-/* 🌟 Airdrop Popup */
-#popup {
-  display:none;position:fixed;top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  background:radial-gradient(circle at center,#111 20%,#000 90%);
-  border:2px solid gold;border-radius:15px;padding:30px;
-  text-align:center;color:#ffd700;
-  box-shadow:0 0 40px gold;z-index:9999;
-  width:80%;max-width:350px;animation:glow 2s infinite alternate;
-}
-@keyframes glow {from { box-shadow:0 0 15px gold; }to { box-shadow:0 0 30px #ffcc00; }}
-#popup h2 {font-size:1.4em;margin-bottom:10px;text-shadow:0 0 15px gold;}
-#popup p {font-size:0.95em;line-height:1.4em;color:#fff;}
-#popup button {
-  background:gold;color:#000;border:none;
-  padding:10px 25px;border-radius:10px;font-weight:bold;
-  margin-top:15px;box-shadow:0 0 20px gold;cursor:pointer;
-}
+.glow {box-shadow:0 0 60px 20px rgba(255,215,0,0.7) inset;transition:box-shadow .5s;}
 </style>
 </head>
 
@@ -166,7 +144,7 @@ footer p {
   <a href="#">💰 Treasury</a>
   <a href="https://daniel-phoenix.github.io/game.html" target="_blank">🎮 GDSX Game Center</a>
   <a href="https://daniel-phoenix.github.io/gdsx_fortune_intro.html" target="_blank"
-     style="color:#ffd700;text-shadow:0 0 8px #ffea70;font-weight:600;animation:shine 2s infinite alternate;">🎴 เสี่ยงเซียมซี GDSX</a>
+     style="color:#ffd700;text-shadow:0 0 8px #ffea70;font-weight:600;">🎴 เสี่ยงเซียมซี GDSX</a>
   <a href="https://daniel-phoenix.github.io/whitepaper-en.html" target="_blank">📘 Whitepaper (EN)</a>
   <a href="javascript:void(0)" onclick="showAirdropComingSoon()">🎈 Airdrop</a>
   <a href="community.html" class="menu-item">💬 Community</a>
@@ -175,7 +153,7 @@ footer p {
 <button class="connect-btn" onclick="connect()"></button>
 <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
 
-<div class="panel">
+<div class="panel" id="panel">
   <div class="data-box">
     <div class="box" id="walletBox">Wallet<span id="wallet">—</span></div>
     <div class="box" id="totalBox">Total GDSX<span id="totalGdsx">0.0000</span></div>
@@ -184,10 +162,10 @@ footer p {
   </div>
   <input type="number" id="amount" placeholder="Enter amount GDSX">
   <div>
-    <button id="btnDeposit" onclick="deposit()">Deposit</button>
-    <button id="btnWithdraw" onclick="withdraw()">Withdraw</button>
+    <button id="btnDeposit" onclick="fastDeposit()">Deposit</button>
+    <button id="btnWithdraw" onclick="fastWithdraw()">Withdraw</button>
     <button class="claim" id="btnClaim" onclick="claim()">Claim</button>
-    <button class="buy" id="btnBuy" onclick="window.location.href='https://daniel-phoenix.github.io/buy.html'">💰 BUY GDSX</button>
+    <button class="buy" id="btnBuy" onclick="buyGdsx()">💰 BUY GDSX</button>
     <a href="https://daniel-phoenix.github.io/game.html" target="_blank" class="game-center-btn">🎮 GDSX Game Center</a>
     <button id="btnRefresh" onclick="refresh()">Refresh</button>
   </div>
@@ -197,26 +175,16 @@ footer p {
 <footer><p>🌟 ระบบทองคำดิจิทัลแห่งยุคใหม่ • The Future of Digital Gold 🌟</p></footer>
 <div id="toast" class="toast"></div>
 
-<!-- ✅ Airdrop Popup -->
-<div id="popup">
-  <h2 id="popup-title">🚀 Airdrop Coming Soon!</h2>
-  <p id="popup-text">
-    Join early and be part of the next revolution in <b>Digital Gold</b>.<br>
-    The future belongs to those who believe early. 💎
-  </p>
-  <button onclick="closePopup()">OK</button>
-</div>
-
 <script>
 const TOKEN="0xC6EdBBBa4C48a50C9a10EaAaFc99FCb840b5f496";
-const TREASURY="0xEcd3965A43A5be3773Ab01A42F448576690Ec8e2";
 const STAKING="0xEc9913d971e43f5b4a0d260381e60595DCb7268e";
-let provider,signer,account,token,staking,decimals=18,lang="en";
+const PAYMENT="0x9E8f57E617c1520FD55A0B732C835EAC73a40F34";
+let provider,signer,account,token,staking,decimals=18;
 
 const abiToken=[
+"function allowance(address owner,address spender)view returns(uint256)",
 "function approve(address spender,uint256 amount) external returns(bool)",
-"function balanceOf(address) view returns(uint256)",
-"function decimals() view returns(uint8)"
+"function balanceOf(address) view returns(uint256)"
 ];
 const abiStaking=[
 "function deposit(uint256 amount) public",
@@ -227,34 +195,7 @@ const abiStaking=[
 
 const $=id=>document.getElementById(id);
 function showToast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
-
-function toggleMenu(){
-  const menu=$("popupMenu");
-  menu.classList.toggle("active");
-  document.addEventListener("click",e=>{
-    if(!menu.contains(e.target) && !e.target.closest(".menu-toggle")) menu.classList.remove("active");
-  });
-}
-
-function toggleLang(){
-  lang=(lang==="en")?"th":"en";
-  const text={
-    en:{wallet:"Wallet",total:"Total GDSX",stake:"Your Stake",reward:"Pending Rewards",deposit:"Deposit",withdraw:"Withdraw",claim:"Claim",buy:"BUY GDSX",refresh:"Refresh",placeholder:"Enter amount GDSX"},
-    th:{wallet:"กระเป๋า",total:"ยอดรวม GDSX",stake:"ยอดฝาก",reward:"รางวัลค้างรับ",deposit:"ฝาก",withdraw:"ถอน",claim:"รับรางวัล",buy:"ซื้อ GDSX",refresh:"รีเฟรช",placeholder:"กรอกจำนวน GDSX"}
-  }[lang];
-  $("walletBox").childNodes[0].textContent=text.wallet;
-  $("totalBox").childNodes[0].textContent=text.total;
-  $("stakeBox").childNodes[0].textContent=text.stake;
-  $("rewardBox").childNodes[0].textContent=text.reward;
-  $("btnDeposit").textContent=text.deposit;
-  $("btnWithdraw").textContent=text.withdraw;
-  $("btnClaim").textContent=text.claim;
-  $("btnBuy").textContent=text.buy;
-  $("btnRefresh").textContent=text.refresh;
-  $("amount").placeholder=text.placeholder;
-  $("lang-btn").textContent=(lang==="en")?"EN":"TH";
-  updatePopupLang();
-}
+function glow(){document.getElementById("panel").classList.add("glow");setTimeout(()=>{$("panel").classList.remove("glow");},800);}
 
 async function connect(){
   try{
@@ -271,55 +212,33 @@ async function connect(){
   }catch(e){console.error(e);showToast("Connection cancelled!");}
 }
 
-async function getPriceUSD(){
-  try{
-    const res=await fetch(`https://api.pancakeswap.info/api/v2/tokens/${TOKEN}`);
-    const j=await res.json();
-    if(j.data?.price)return parseFloat(j.data.price);
-  }catch(e){console.log("price fetch fail",e);}
-  return 0;
-}
-
-async function refresh(){
-  if(!signer)return connect();
-  showToast("🔄 Updating...");
-  const [u,pending,userBal,price]=await Promise.all([
-    staking.users(account),
-    staking.pendingReward(account),
-    token.balanceOf(account),
-    getPriceUSD()
-  ]);
-  const stake=parseFloat(ethers.utils.formatUnits(u.amount,decimals));
-  const rew=parseFloat(ethers.utils.formatUnits(pending,decimals));
-  const walletBal=parseFloat(ethers.utils.formatUnits(userBal,decimals));
-
-  $("stake").textContent=stake.toFixed(4);
-  $("reward").textContent=rew.toFixed(4);
-  $("rewardUsd").textContent=`≈ $${(rew*price).toFixed(4)} USD`;
-  $("totalGdsx").textContent=walletBal.toFixed(4);
-}
-
-async function deposit(){
+async function fastDeposit(){
   if(!signer)return connect();
   const val=$("amount").value;if(!val||Number(val)<=0)return showToast("Enter amount");
   const amt=ethers.utils.parseUnits(val,decimals);
   try{
-    showToast("Approving...");
-    const tx1=await token.approve(STAKING,amt);await tx1.wait();
+    const allowance=await token.allowance(account,STAKING);
+    if(allowance.lt(amt)){
+      showToast("Approving...");
+      const tx1=await token.approve(STAKING,ethers.constants.MaxUint256);
+      await tx1.wait();
+    }
     showToast("Depositing...");
-    const tx2=await staking.deposit(amt);await tx2.wait();
-    showToast("✅ Deposit success");refresh();
+    const tx2=await staking.deposit(amt);
+    await tx2.wait();
+    glow();showToast("✅ Deposit success");refresh();
   }catch(e){console.error(e);showToast("Deposit failed");}
 }
 
-async function withdraw(){
+async function fastWithdraw(){
   if(!signer)return connect();
   const val=$("amount").value;if(!val||Number(val)<=0)return showToast("Enter amount");
   const amt=ethers.utils.parseUnits(val,decimals);
   try{
     showToast("Withdrawing...");
-    const tx=await staking.withdraw(amt);await tx.wait();
-    showToast("📤 Withdraw success");refresh();
+    const tx=await staking.withdraw(amt);
+    await tx.wait();
+    glow();showToast("📤 Withdraw success");refresh();
   }catch(e){console.error(e);showToast("Withdraw failed");}
 }
 
@@ -327,30 +246,30 @@ async function claim(){
   if(!signer)return connect();
   try{
     showToast("Claiming...");
-    const tx=await staking.withdraw(0);await tx.wait();
-    showToast("🎁 Claim success");refresh();
+    const tx=await staking.withdraw(0);
+    await tx.wait();
+    glow();showToast("🎁 Claim success");refresh();
   }catch(e){console.error(e);showToast("Claim failed");}
 }
 
-/* 🎈 Airdrop Popup Function */
-function showAirdropComingSoon(){
-  updatePopupLang();
-  document.getElementById("popup").style.display="block";
+async function buyGdsx(){
+  if(!signer)return connect();
+  try{
+    const amount=prompt("กรอกจำนวน USDT ที่ต้องการซื้อ GDSX:");
+    if(!amount)return;
+    showToast("Buying...");
+    const pay=new ethers.Contract(PAYMENT,["function buy(uint256 usdtAmount) public"],signer);
+    const tx=await pay.buy(ethers.utils.parseUnits(amount,18));
+    await tx.wait();
+    glow();showToast("💰 Buy success");
+  }catch(e){console.error(e);showToast("Buy failed");}
 }
-function closePopup(){
-  document.getElementById("popup").style.display="none";
+
+async function refresh(){
+  if(!signer)return connect();
+  try{showToast("🔄 Updating...");/* สามารถเพิ่มข้อมูลเรียลไทม์ภายหลังได้ */}catch(e){console.log(e);}
 }
-function updatePopupLang(){
-  const title=document.getElementById("popup-title");
-  const text=document.getElementById("popup-text");
-  if(lang==="en"){
-    title.textContent="🚀 Airdrop Coming Soon!";
-    text.innerHTML='Join early and be part of the next revolution in <b>Digital Gold</b>.<br>The future belongs to those who believe early. 💎';
-  }else{
-    title.textContent="🚀 Airdrop กำลังจะมาเร็ว ๆ นี้!";
-    text.innerHTML='เข้าร่วมก่อนใครและเป็นส่วนหนึ่งของการปฏิวัติ <b>ทองคำดิจิทัล</b>.<br>อนาคตเป็นของผู้ที่เชื่อมั่นตั้งแต่ต้น 💎';
-  }
-}
+function toggleMenu(){const m=$("popupMenu");m.classList.toggle("active");}
 </script>
 </body>
 </html>
