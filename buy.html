@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💰 Buy GDSX</title>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<style>
+body {
+  font-family: "Poppins","Noto Sans Thai",sans-serif;
+  background: radial-gradient(circle at top,#000 40%,#111 100%);
+  color:#fff;
+  text-align:center;
+  padding:100px 20px;
+  overflow:hidden;
+}
+h1 {
+  font-size:2rem;
+  margin-bottom:40px;
+  color:#ffd700;
+  text-shadow:0 0 15px #ffde70,0 0 30px #ffd700;
+}
+.panel {
+  background:#111;
+  border:1px solid #333;
+  border-radius:10px;
+  display:inline-block;
+  padding:30px 40px;
+  box-shadow:0 0 20px rgba(255,215,0,0.2);
+}
+input {
+  width:200px;
+  padding:10px;
+  margin-top:10px;
+  border:none;
+  border-radius:5px;
+  text-align:center;
+}
+button {
+  background:#ffd700;
+  border:none;
+  padding:10px 25px;
+  margin-top:15px;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+}
+button:hover {box-shadow:0 0 25px #ffd700;}
+#connect {background:#00ffd5;color:#000;}
+.footer {
+  margin-top:40px;
+  color:#888;
+  font-size:0.8rem;
+}
+</style>
+</head>
+<body>
+  <h1>💰 Buy GDSX</h1>
+  <p>ซื้อเหรียญ <b>GDSX</b> ด้วย USDT ได้ทันทีผ่าน Smart Contract</p>
+
+  <div class="panel">
+    <p>อัตราแลกเปลี่ยน (Rate): <b>10 GDSX / 1 USDT</b></p>
+    <input type="number" id="usdtAmount" placeholder="ใส่จำนวน USDT">
+    <div>
+      <button onclick="buy()">ซื้อ GDSX</button>
+    </div>
+    <div style="margin-top:15px;">
+      <button id="connect" onclick="connectWallet()">🔗 Connect Wallet</button>
+      <a href="index.html"><button>🏠 Back Home</button></a>
+    </div>
+  </div>
+
+  <div class="footer">© 2025 GDSX Finance — Powered by Gold Digital System X</div>
+
+<script>
+const contractAddress = "0xe0323a9AdD98F14939ddeb62DC4076AfeE94DFad";
+const abi = [
+  "function rate() view returns(uint256)",
+  "function buy(uint256 usdtAmount) public",
+  "function usdt() view returns(address)",
+  "function gdsx() view returns(address)",
+  "function treasury() view returns(address)"
+];
+
+let provider, signer, contract;
+
+async function connectWallet() {
+  if (!window.ethereum) return alert("⚠️ โปรดติดตั้ง MetaMask ก่อน");
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  signer = provider.getSigner();
+  contract = new ethers.Contract(contractAddress, abi, signer);
+  alert("✅ Wallet connected!");
+}
+
+async function buy() {
+  try {
+    const amt = document.getElementById("usdtAmount").value;
+    if (!amt || amt <= 0) return alert("กรุณาใส่จำนวน USDT");
+
+    const usdtAddr = await contract.usdt();
+    const usdt = new ethers.Contract(usdtAddr, [
+      "function approve(address spender,uint256 amount) public returns(bool)"
+    ], signer);
+
+    const approveTx = await usdt.approve(contractAddress, ethers.utils.parseUnits(amt, 18));
+    await approveTx.wait();
+
+    const tx = await contract.buy(ethers.utils.parseUnits(amt, 18));
+    await tx.wait();
+
+    alert(`🎉 ซื้อสำเร็จ! ได้รับ GDSX จำนวน ${amt * 10} เหรียญ`);
+  } catch (err) {
+    console.error(err);
+    alert("❌ Transaction failed");
+  }
+}
+</script>
+</body>
+</html>
