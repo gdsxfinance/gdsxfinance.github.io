@@ -310,19 +310,38 @@ async function refresh(){
   $("totalGdsx").textContent=walletBal.toFixed(4);
 }
 
+/* ✅ ส่วนนี้คือ deposit() เวอร์ชันแก้แล้ว */
 async function deposit(){
   if(!signer)return connect();
-  const val=$("amount").value;if(!val||Number(val)<=0)return showToast("Enter amount");
-  const amt=ethers.utils.parseUnits(val,decimals);
+  let val = $("amount").value;
+  if(!val || Number(val) <= 0){
+    showToast("Enter amount");
+    return;
+  }
+  val = val.trim();
+  const amt = ethers.utils.parseUnits(val.toString(), decimals);
+
   try{
     showToast("Approving...");
-    const tx1=await token.approve(STAKING,amt);await tx1.wait();
+    const tx1 = await token.approve(STAKING, amt);
+    await tx1.wait(); // รอให้ Approve เสร็จแน่นอนก่อน
+
     showToast("Depositing...");
-    const tx2=await staking.deposit(amt);await tx2.wait();
-    $("panelBox").style.boxShadow="0 0 40px gold";
-    setTimeout(()=>{$("panelBox").style.boxShadow="0 0 15px rgba(255,215,0,.3)";},1200);
-    showToast("✅ Deposit success");refresh();
-  }catch(e){console.error(e);showToast("Deposit failed");}
+    const tx2 = await staking.deposit(amt);
+    await tx2.wait();
+
+    // เอฟเฟกต์แสงทอง
+    $("panelBox").style.boxShadow = "0 0 40px gold";
+    setTimeout(() => {
+      $("panelBox").style.boxShadow = "0 0 15px rgba(255,215,0,.3)";
+    }, 1200);
+
+    showToast("✅ Deposit success");
+    refresh();
+  } catch(e) {
+    console.error(e);
+    showToast("Deposit failed or cancelled");
+  }
 }
 
 async function withdraw(){
