@@ -222,6 +222,7 @@ let provider,signer,account,token,staking,decimals=18,lang="en";
 const abiToken=[
 "function approve(address spender,uint256 amount) external returns(bool)",
 "function balanceOf(address) view returns(uint256)",
+"function allowance(address owner,address spender) view returns(uint256)",
 "function decimals() view returns(uint8)"
 ];
 const abiStaking=[
@@ -310,7 +311,7 @@ async function refresh(){
   $("totalGdsx").textContent=walletBal.toFixed(4);
 }
 
-/* ✅ ส่วนนี้คือ deposit() เวอร์ชันแก้แล้ว */
+/* ✅ Deposit เวอร์ชันเสถียร — มีระบบตรวจ Allowance + รอ Approve */
 async function deposit(){
   if(!signer)return connect();
   let val = $("amount").value;
@@ -324,13 +325,21 @@ async function deposit(){
   try{
     showToast("Approving...");
     const tx1 = await token.approve(STAKING, amt);
-    await tx1.wait(); // รอให้ Approve เสร็จแน่นอนก่อน
+    await tx1.wait();
+
+    // ✅ ตรวจว่า Approve ผ่านแน่นอนก่อนฝาก
+    let allowance = await token.allowance(account, STAKING);
+    let tries = 0;
+    while (allowance.lt(amt) && tries < 5) {
+      await new Promise(r => setTimeout(r, 1500));
+      allowance = await token.allowance(account, STAKING);
+      tries++;
+    }
 
     showToast("Depositing...");
-    const tx2 = await staking.deposit(amt);
+    const tx2 = await staking.deposit(amt, { gasLimit: 180000 });
     await tx2.wait();
 
-    // เอฟเฟกต์แสงทอง
     $("panelBox").style.boxShadow = "0 0 40px gold";
     setTimeout(() => {
       $("panelBox").style.boxShadow = "0 0 15px rgba(255,215,0,.3)";
@@ -340,7 +349,8 @@ async function deposit(){
     refresh();
   } catch(e) {
     console.error(e);
-    showToast("Deposit failed or cancelled");
+    if (e.code === 4001) showToast("❌ Transaction rejected");
+    else showToast("Deposit failed, try again");
   }
 }
 
@@ -350,7 +360,8 @@ async function withdraw(){
   const amt=ethers.utils.parseUnits(val,decimals);
   try{
     showToast("Withdrawing...");
-    const tx=await staking.withdraw(amt);await tx.wait();
+    const tx=await staking.withdraw(amt,{gasLimit:180000});
+    await tx.wait();
     $("panelBox").style.boxShadow="0 0 40px #00ffd5";
     setTimeout(()=>{$("panelBox").style.boxShadow="0 0 15px rgba(255,215,0,.3)";},1200);
     showToast("📤 Withdraw success");refresh();
@@ -361,7 +372,8 @@ async function claim(){
   if(!signer)return connect();
   try{
     showToast("Claiming...");
-    const tx=await staking.withdraw(0);await tx.wait();
+    const tx=await staking.withdraw(0,{gasLimit:120000});
+    await tx.wait();
     $("panelBox").style.boxShadow="0 0 40px #ffb700";
     setTimeout(()=>{$("panelBox").style.boxShadow="0 0 15px rgba(255,215,0,.3)";},1200);
     showToast("🎁 Claim success");refresh();
