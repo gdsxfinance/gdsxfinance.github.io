@@ -26,6 +26,7 @@ h1 {color:var(--gold);text-shadow:0 0 10px rgba(255,215,0,.6);font-size:1.8em;ma
   background:rgba(20,20,20,.85);border:1px solid var(--gold);
   border-radius:16px;padding:20px;margin:10px auto 100px auto;
   width:90%;max-width:420px;box-shadow:0 0 15px rgba(255,215,0,.3);
+  transition:box-shadow 0.3s ease;
 }
 .data-box {display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
 .box {
@@ -101,17 +102,29 @@ footer p {
   border:1px solid var(--gold);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:.9em;
 }
 .menu-toggle {
-  position:fixed;top:18px;right:80px;font-size:26px;color:var(--gold);cursor:pointer;
+  position:fixed;top:18px;right:80px;
+  font-size:26px;color:var(--gold);cursor:pointer;
 }
 .popup-menu {
-  position:fixed;top:0;right:-250px;width:250px;height:100%;
-  background:rgba(20,20,20,.95);border-left:2px solid var(--gold);
-  display:flex;flex-direction:column;justify-content:center;
+  position:fixed;top:0;right:-250px;
+  width:250px;height:100%;
+  background:rgba(20,20,20,.95);
+  border-left:2px solid var(--gold);
+  display:flex;flex-direction:column;
+  justify-content:center;
   transition:.4s;z-index:1500;
 }
 .popup-menu.active{right:0;}
-.popup-menu a{color:var(--gold);text-decoration:none;padding:12px 20px;border-bottom:1px solid rgba(255,215,0,.3);}
-.popup-menu a:hover{background:rgba(255,215,0,0.1);}
+.popup-menu a{
+  color:var(--gold);text-decoration:none;
+  padding:12px 20px;
+  border-bottom:1px solid rgba(255,215,0,.3);
+  transition:all .3s ease;
+}
+.popup-menu a:hover{
+  background:rgba(255,215,0,0.1);
+  text-shadow:0 0 12px #ffd700;
+}
 .powered {margin-top:10px;color:var(--gold);font-size:.9em;}
 .game-center-btn {
   background:linear-gradient(90deg,#ffd700,#ffb400);
@@ -122,11 +135,33 @@ footer p {
   transition:.3s;
 }
 .game-center-btn:hover {box-shadow:0 0 30px rgba(255,255,150,1);}
+@keyframes shine {
+  from { text-shadow:0 0 8px #ffd700,0 0 16px #ffb700; }
+  to { text-shadow:0 0 20px #fff4a0,0 0 30px #ffe066; }
+}
+/* 🌟 Airdrop Popup */
+#popup {
+  display:none;position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle at center,#111 20%,#000 90%);
+  border:2px solid gold;border-radius:15px;padding:30px;
+  text-align:center;color:#ffd700;
+  box-shadow:0 0 40px gold;z-index:9999;
+  width:80%;max-width:350px;animation:glow 2s infinite alternate;
+}
+@keyframes glow {from{box-shadow:0 0 15px gold;}to{box-shadow:0 0 30px #ffcc00;}}
+#popup h2 {font-size:1.4em;margin-bottom:10px;text-shadow:0 0 15px gold;}
+#popup p {font-size:0.95em;line-height:1.4em;color:#fff;}
+#popup button {
+  background:gold;color:#000;border:none;
+  padding:10px 25px;border-radius:10px;font-weight:bold;
+  margin-top:15px;box-shadow:0 0 20px gold;cursor:pointer;
+}
 </style>
 </head>
 
 <body>
-<img class="logo" src="https://daniel-phoenix.github.io/gdsx-logo.png" alt="GDSX Logo">
+<img class="logo" src="logo.png" alt="GDSX Logo">
 <h1>🌾 GDSX FARM ULTRA++</h1>
 <p class="subtitle">The Future of Digital Gold — ระบบทองคำดิจิทัลแห่งยุคใหม่</p>
 
@@ -135,27 +170,31 @@ footer p {
   <a href="#">🌾 Farm</a>
   <a href="#">💰 Treasury</a>
   <a href="https://daniel-phoenix.github.io/game.html" target="_blank">🎮 GDSX Game Center</a>
-  <a href="#">📄 Whitepaper</a>
-  <a href="#">🎈 Airdrop</a>
-  <a href="#">💬 Community</a>
+  <a href="https://daniel-phoenix.github.io/gdsx_fortune_intro.html" target="_blank"
+     style="color:#ffd700;text-shadow:0 0 8px #ffea70;font-weight:600;animation:shine 2s infinite alternate;">🎴 เสี่ยงเซียมซี GDSX</a>
+  <a href="https://daniel-phoenix.github.io/whitepaper-en.html" target="_blank">📘 Whitepaper (EN)</a>
+  <a href="javascript:void(0)" onclick="showAirdropComingSoon()">🎈 Airdrop</a>
+  <a href="community.html" class="menu-item">💬 Community</a>
 </div>
 
 <button class="connect-btn" onclick="connect()"></button>
 <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
 
-<div class="panel">
+<div class="panel" id="panelBox">
   <div class="data-box">
     <div class="box" id="walletBox">Wallet<span id="wallet">—</span></div>
     <div class="box" id="totalBox">Total GDSX<span id="totalGdsx">0.0000</span></div>
     <div class="box" id="stakeBox">Your Stake<span id="stake">0.0000</span></div>
     <div class="box" id="rewardBox">Pending Rewards<span id="reward">0.0000</span><small id="rewardUsd">≈ — USD</small></div>
   </div>
+
   <input type="number" id="amount" placeholder="Enter amount GDSX">
+
   <div>
     <button id="btnDeposit" onclick="deposit()">Deposit</button>
     <button id="btnWithdraw" onclick="withdraw()">Withdraw</button>
     <button class="claim" id="btnClaim" onclick="claim()">Claim</button>
-    <button class="buy" id="btnBuy" onclick="buyGdsx()">BUY GDSX</button>
+    <button class="buy" id="btnBuy" onclick="window.location.href='https://daniel-phoenix.github.io/buy.html'">💰 BUY GDSX</button>
     <a href="https://daniel-phoenix.github.io/game.html" target="_blank" class="game-center-btn">🎮 GDSX Game Center</a>
     <button id="btnRefresh" onclick="refresh()">Refresh</button>
   </div>
@@ -165,6 +204,15 @@ footer p {
 <footer><p>🌟 ระบบทองคำดิจิทัลแห่งยุคใหม่ • The Future of Digital Gold 🌟</p></footer>
 <div id="toast" class="toast"></div>
 
+<!-- ✅ Airdrop Popup -->
+<div id="popup">
+  <h2 id="popup-title">🚀 Airdrop Coming Soon!</h2>
+  <p id="popup-text">
+    Join early and be part of the next revolution in <b>Digital Gold</b>.<br>
+    The future belongs to those who believe early. 💎
+  </p>
+  <button onclick="closePopup()">OK</button>
+</div>
 <script>
 const TOKEN="0xC6EdBBBa4C48a50C9a10EaAaFc99FCb840b5f496";
 const TREASURY="0xEcd3965A43A5be3773Ab01A42F448576690Ec8e2";
@@ -184,13 +232,19 @@ const abiStaking=[
 ];
 
 const $=id=>document.getElementById(id);
-function showToast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
+function showToast(msg){
+  const t=$("toast");
+  t.textContent=msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2200);
+}
 
 function toggleMenu(){
   const menu=$("popupMenu");
   menu.classList.toggle("active");
   document.addEventListener("click",e=>{
-    if(!menu.contains(e.target) && !e.target.closest(".menu-toggle")) menu.classList.remove("active");
+    if(!menu.contains(e.target) && !e.target.closest(".menu-toggle"))
+      menu.classList.remove("active");
   });
 }
 
@@ -211,6 +265,7 @@ function toggleLang(){
   $("btnRefresh").textContent=text.refresh;
   $("amount").placeholder=text.placeholder;
   $("lang-btn").textContent=(lang==="en")?"EN":"TH";
+  updatePopupLang();
 }
 
 async function connect(){
@@ -249,14 +304,11 @@ async function refresh(){
   const stake=parseFloat(ethers.utils.formatUnits(u.amount,decimals));
   const rew=parseFloat(ethers.utils.formatUnits(pending,decimals));
   const walletBal=parseFloat(ethers.utils.formatUnits(userBal,decimals));
-
   $("stake").textContent=stake.toFixed(4);
   $("reward").textContent=rew.toFixed(4);
   $("rewardUsd").textContent=`≈ $${(rew*price).toFixed(4)} USD`;
   $("totalGdsx").textContent=walletBal.toFixed(4);
 }
-
-function buyGdsx(){window.open("https://pancakeswap.finance/swap?outputCurrency="+TOKEN,"_blank");}
 
 async function deposit(){
   if(!signer)return connect();
@@ -267,6 +319,8 @@ async function deposit(){
     const tx1=await token.approve(STAKING,amt);await tx1.wait();
     showToast("Depositing...");
     const tx2=await staking.deposit(amt);await tx2.wait();
+    $("panelBox").style.boxShadow="0 0 40px gold";
+    setTimeout(()=>{$("panelBox").style.boxShadow="0 0 15px rgba(255,215,0,.3)";},1200);
     showToast("✅ Deposit success");refresh();
   }catch(e){console.error(e);showToast("Deposit failed");}
 }
@@ -278,6 +332,8 @@ async function withdraw(){
   try{
     showToast("Withdrawing...");
     const tx=await staking.withdraw(amt);await tx.wait();
+    $("panelBox").style.boxShadow="0 0 40px #00ffd5";
+    setTimeout(()=>{$("panelBox").style.boxShadow="0 0 15px rgba(255,215,0,.3)";},1200);
     showToast("📤 Withdraw success");refresh();
   }catch(e){console.error(e);showToast("Withdraw failed");}
 }
@@ -287,8 +343,28 @@ async function claim(){
   try{
     showToast("Claiming...");
     const tx=await staking.withdraw(0);await tx.wait();
+    $("panelBox").style.boxShadow="0 0 40px #ffb700";
+    setTimeout(()=>{$("panelBox").style.boxShadow="0 0 15px rgba(255,215,0,.3)";},1200);
     showToast("🎁 Claim success");refresh();
   }catch(e){console.error(e);showToast("Claim failed");}
+}
+
+/* 🎈 Airdrop Popup */
+function showAirdropComingSoon(){
+  updatePopupLang();
+  document.getElementById("popup").style.display="block";
+}
+function closePopup(){document.getElementById("popup").style.display="none";}
+function updatePopupLang(){
+  const title=document.getElementById("popup-title");
+  const text=document.getElementById("popup-text");
+  if(lang==="en"){
+    title.textContent="🚀 Airdrop Coming Soon!";
+    text.innerHTML='Join early and be part of the next revolution in <b>Digital Gold</b>.<br>The future belongs to those who believe early. 💎';
+  }else{
+    title.textContent="🚀 Airdrop กำลังจะมาเร็ว ๆ นี้!";
+    text.innerHTML='เข้าร่วมก่อนใครและเป็นส่วนหนึ่งของการปฏิวัติ <b>ทองคำดิจิทัล</b>.<br>อนาคตเป็นของผู้ที่เชื่อมั่นตั้งแต่ต้น 💎';
+  }
 }
 </script>
 </body>
