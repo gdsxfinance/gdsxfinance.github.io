@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌾 GDSX FARM ULTRA++</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<style>
+:root { --gold:#ffd700; --neon:#00ffd5; }
+body {
+  background: radial-gradient(circle at top,#000 40%,#111 100%);
+  color:#fff; font-family:"Poppins","Noto Sans Thai",sans-serif;
+  text-align:center; overflow-x:hidden; min-height:100vh; margin:0;
+}
+.logo {
+  width:90px; height:90px; border-radius:50%;
+  object-fit:cover; margin-top:25px;
+  box-shadow:0 0 30px rgba(255,215,0,0.8);
+  animation:spin 10s linear infinite;
+}
+@keyframes spin {from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.box {
+  max-width:420px; margin:30px auto; background:#111; padding:25px;
+  border-radius:20px; box-shadow:0 0 15px rgba(255,215,0,.3);
+}
+input {
+  width:80%; padding:12px; border:none; border-radius:10px;
+  margin-bottom:15px; text-align:center; font-size:1em;
+}
+button {
+  background:linear-gradient(90deg,var(--gold),#ffb700);
+  color:#000; border:none; padding:12px 30px; border-radius:25px;
+  font-weight:bold; cursor:pointer; transition:.2s;
+}
+button:hover {box-shadow:0 0 20px var(--gold);}
+.toast {
+  visibility:hidden; min-width:180px; background:#333; color:#fff;
+  text-align:center; border-radius:10px; padding:12px;
+  position:fixed; z-index:1; left:50%; bottom:30px;
+  transform:translateX(-50%); transition:visibility 0s,opacity .3s;
+  opacity:0;
+}
+.toast.show {visibility:visible; opacity:1;}
+</style>
+</head>
+<body>
+  <img src="https://raw.githubusercontent.com/gdsxfinance/gdsx-assets/main/logo-256.png" class="logo" alt="logo">
+  <div class="box" id="panelBox">
+    <h2>🌾 GDSX FARM ULTRA++</h2>
+    <p id="wallet">👛 Wallet: not connected</p>
+    <p>Total GDSX: <span id="totalGdsx">0</span></p>
+    <p>Your Stake: <span id="stake">0</span></p>
+    <p>Pending Reward: <span id="reward">0</span> <br><small id="rewardUsd"></small></p>
+
+    <input id="amount" placeholder="Enter amount GDSX">
+    <br>
+    <button onclick="deposit()" id="btnDeposit">Deposit</button>
+    <button onclick="withdraw()" id="btnWithdraw">Withdraw</button>
+    <button onclick="claim()" id="btnClaim">Claim</button>
+    <br><br>
+    <button onclick="connect()">🔗 Connect Wallet</button>
+    <button onclick="refresh()">🔄 Refresh</button>
+  </div>
+  <div id="toast" class="toast"></div>
+
+<script>
+const TOKEN="0xC6EdBBBa4C48a50C9a10EaAaFc99FCb840b5f496";
+const TREASURY="0xEcd3965A43A5be3773Ab01A42F448576690Ec8e2";
+const STAKING="0xEc9913d971e43f5b4a0d260381e60595DCb7268e";
+let provider,signer,account,token,staking,decimals=18;
+
+const abiToken=[
+"function approve(address spender,uint256 amount) external returns(bool)",
+"function balanceOf(address) view returns(uint256)",
+"function allowance(address owner,address spender) view returns(uint256)",
+"function decimals() view returns(uint8)"
+];
+const abiStaking=[
+"function deposit(uint256 amount) public",
+"function withdraw(uint256 amount) public",
+"function users(address) view returns (uint256 amount,uint256 rewardDebt)",
+"function pendingReward(address userAddr) view returns (uint256)"
+];
+
+const $=id=>document.getElementById(id);
+function showToast(msg){
+  const t=$("toast");t.textContent=msg;t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2200);
+}
+
+async function connect(){
+  try{
+    if(!window.ethereum){alert("Please install MetaMask!");return;}
+    provider=new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts",[]);
+    signer=provider.getSigner();
+    account=await signer.getAddress();
+    token=new ethers.Contract(TOKEN,abiToken,signer);
+    staking=new ethers.Contract(STAKING,abiStaking,signer);
+    $("wallet").textContent=account.slice(0,6)+"..."+account.slice(-4);
+    showToast("✅ Wallet connected");
+    refresh();
+  }catch(e){console.error(e);showToast("Connection cancelled!");}
+}
+
+async function getPriceUSD(){
+  try{
+    const res=await fetch(`https://api.pancakeswap.info/api/v2/tokens/${TOKEN}`);
+    const j=await res.json();
+    if(j.data?.price)return parseFloat(j.data.price);
+  }catch(e){console.log("price fetch fail",e);}
+  return 0;
+}
+
+async function refresh(){
+  if(!signer)return connect();
+  showToast("🔄 Updating...");
+  const [u,pending,userBal,price]=await Promise.all([
+    staking.users(account),
+    staking.pendingReward(account),
+    token.balanceOf(account),
+    getPriceUSD()
+  ]);
+  const stake=parseFloat(ethers.utils.formatUnits(u.amount,decimals));
+  const rew=parseFloat(ethers.utils.formatUnits(pending,decimals));
+  const walletBal=parseFloat(ethers.utils.formatUnits(userBal,decimals));
+  $("stake").textContent=stake.toFixed(4);
+  $("reward").textContent=rew.toFixed(4);
+  $("rewardUsd").textContent=`≈ $${(rew*price).toFixed(4)} USD`;
+  $("totalGdsx").textContent=walletBal.toFixed(4);
+}
+
+/* ✅ Deposit ง่ายขึ้น */
+async function deposit(){
+  if(!signer) return connect();
+  const val = $("amount").value;
+  if(!val || Number(val) <= 0) return showToast("Enter amount");
+
+  const amt = ethers.utils.parseUnits(val, decimals);
+  try{
+    const allowance = await token.allowance(account, STAKING);
+    if(allowance.lt(amt)){
+      showToast("🔓 Approving GDSX...");
+      const tx1 = await token.approve(STAKING, ethers.constants.MaxUint256);
+      await tx1.wait();
+      showToast("✅ Approved!");
+    }
+    showToast("💰 Depositing...");
+    const tx2 = await staking.deposit(amt);
+    await tx2.wait();
+
+    $("panelBox").style.boxShadow="0 0 40px gold";
+    setTimeout(()=>{$("panelBox").style.boxShadow="0 0 15px rgba(255,215,0,.3)";},1200);
+    showToast("✅ Deposit success!");
+    refresh();
+  }catch(e){console.error(e);showToast("Deposit failed ❌");}
+}
+
+async function withdraw(){
+  if(!signer)return connect();
+  const val=$("amount").value;if(!val||Number(val)<=0)return showToast("Enter amount");
+  const amt=ethers.utils.parseUnits(val,decimals);
+  try{
+    showToast("Withdrawing...");
+    const tx=await staking.withdraw(amt);await tx.wait();
+    $("panelBox").style.boxShadow="0 0 40px #00ffd5";
+    setTimeout(()=>{$("panelBox").style.boxShadow="0 0 15px rgba(255,215,0,.3)";},1200);
+    showToast("📤 Withdraw success");refresh();
+  }catch(e){console.error(e);showToast("Withdraw failed");}
+}
+
+async function claim(){
+  if(!signer)return connect();
+  try{
+    showToast("Claiming...");
+    const tx=await staking.withdraw(0);await tx.wait();
+    $("panelBox").style.boxShadow="0 0 40px #ffb700";
+    setTimeout(()=>{$("panelBox").style.boxShadow="0 0 15px rgba(255,215,0,.3)";},1200);
+    showToast("🎁 Claim success");refresh();
+  }catch(e){console.error(e);showToast("Claim failed");}
+}
+</script>
+</body>
+</html>
