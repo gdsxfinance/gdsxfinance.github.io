@@ -311,18 +311,37 @@ async function refresh(){
 }
 
 async function deposit(){
-  if(!signer)return connect();
-  const val=$("amount").value;if(!val||Number(val)<=0)return showToast("Enter amount");
-  const amt=ethers.utils.parseUnits(val,decimals);
-  try{
-    showToast("Approving...");
-    const tx1=await token.approve(STAKING,amt);await tx1.wait();
-    showToast("Depositing...");
-    const tx2=await staking.deposit(amt);await tx2.wait();
-    $("panelBox").style.boxShadow="0 0 40px gold";
-    setTimeout(()=>{$("panelBox").style.boxShadow="0 0 15px rgba(255,215,0,.3)";},1200);
-    showToast("✅ Deposit success");refresh();
-  }catch(e){console.error(e);showToast("Deposit failed");}
+  if(!signer) return connect();
+  const val = $("amount").value;
+  if(!val || Number(val) <= 0) return showToast("Enter amount");
+
+  const amt = ethers.utils.parseUnits(val, decimals);
+  try {
+    // ✅ ตรวจสอบว่า Approve แล้วหรือยัง
+    const allowance = await token.allowance(account, STAKING);
+    if (allowance.lt(amt)) {
+      showToast("🔓 Approving GDSX...");
+      const tx1 = await token.approve(STAKING, ethers.constants.MaxUint256);
+      await tx1.wait();
+      showToast("✅ Approved!");
+    }
+
+    // ✅ ฝากเลย (ไม่ต้องกดซ้ำ)
+    showToast("💰 Depositing...");
+    const tx2 = await staking.deposit(amt);
+    await tx2.wait();
+
+    $("panelBox").style.boxShadow = "0 0 40px gold";
+    setTimeout(() => {
+      $("panelBox").style.boxShadow = "0 0 15px rgba(255,215,0,.3)";
+    }, 1200);
+
+    showToast("✅ Deposit success!");
+    refresh();
+  } catch (e) {
+    console.error(e);
+    showToast("Deposit failed ❌");
+  }
 }
 
 async function withdraw(){
