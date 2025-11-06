@@ -222,7 +222,8 @@ let provider,signer,account,token,staking,decimals=18,lang="en";
 const abiToken=[
 "function approve(address spender,uint256 amount) external returns(bool)",
 "function balanceOf(address) view returns(uint256)",
-"function decimals() view returns(uint8)"
+"function decimals() view returns(uint8)",
+"function allowance(address owner,address spender) view returns(uint256)"
 ];
 const abiStaking=[
 "function deposit(uint256 amount) public",
