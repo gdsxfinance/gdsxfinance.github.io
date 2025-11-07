@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💰 BUY GDSX PRO — MetaMask Swap</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<style>
+:root { --gold:#ffd700; --neon:#00ffd5; }
+body {
+  background: radial-gradient(circle at top,#000 40%,#111 100%);
+  color:#fff; font-family:"Poppins","Noto Sans Thai",sans-serif;
+  text-align:center; overflow-x:hidden; min-height:100vh; margin:0;
+}
+.logo {
+  width:100px; height:100px; border-radius:50%; object-fit:cover;
+  margin-top:25px; box-shadow:0 0 30px rgba(255,215,0,0.8);
+  animation:spin 10s linear infinite;
+}
+@keyframes spin {from{transform:rotate(0)}to{transform:rotate(360deg)}}
+h1 {color:var(--gold);text-shadow:0 0 12px var(--gold);}
+p {color:var(--neon);}
+.panel {
+  background:rgba(20,20,20,.9); border:1px solid var(--gold);
+  border-radius:18px; padding:25px; margin:20px auto;
+  width:90%; max-width:420px; box-shadow:0 0 15px rgba(255,215,0,.3);
+}
+input {
+  width:80%; padding:12px; margin-top:10px; border-radius:10px;
+  border:1px solid rgba(255,215,0,.3); text-align:center;
+  background:#111; color:#fff; font-size:1.1em;
+}
+button {
+  margin-top:15px; padding:12px 25px; border-radius:12px;
+  cursor:pointer; font-weight:700; transition:.3s;
+}
+.buy {
+  background:linear-gradient(90deg,#00ffcc,#00cc99);
+  color:#111; border:none; box-shadow:0 0 20px rgba(0,255,204,.7);
+}
+.buy:hover {transform:scale(1.05);}
+.back {
+  background:linear-gradient(90deg,#333,#555);
+  color:var(--gold); border:1px solid var(--gold);
+}
+.toast {
+  position:fixed; left:50%; bottom:60px; transform:translateX(-50%);
+  background:rgba(20,20,20,.95); border:1px solid var(--gold);
+  color:#fff; padding:10px 16px; border-radius:12px;
+  box-shadow:0 0 12px rgba(255,215,0,.35);
+  display:none; z-index:1600; font-size:.95em;
+}
+.toast.show{display:block;}
+footer {
+  position:fixed; bottom:0; left:0; width:100%; height:32px;
+  background:#111; border-top:1px solid rgba(255,215,0,.5);
+  overflow:hidden;
+}
+footer p {
+  color:var(--gold); white-space:nowrap; font-size:.9em; font-weight:600;
+  animation:scrollText 18s linear infinite; text-shadow:0 0 8px var(--gold);
+}
+@keyframes scrollText {from{transform:translateX(100%);}to{transform:translateX(-100%);}}
+</style>
+</head>
+
+<body>
+<img src="logo.png" class="logo" alt="GDSX Logo">
+<h1>💰 BUY GDSX PRO</h1>
+<p>ซื้อเหรียญ GDSX ผ่าน MetaMask โดยตรง<br>ราคาดี ปลอดภัย ไม่ต้อง Approve</p>
+
+<div class="panel">
+  <input id="usdtAmount" type="number" placeholder="ใส่จำนวน USDT ที่ต้องการใช้ซื้อ">
+  <br>
+  <button class="buy" onclick="buyGDSX()">💎 SWAP NOW</button>
+  <br>
+  <button class="back" onclick="location.href='index.html'">⬅️ กลับหน้าแรก</button>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<footer><p>🌟 GDSX Finance — The Future of Digital Gold • 2025 🌟</p></footer>
+
+<script>
+const USDT = "0x55d398326f99059fF775485246999027B3197955"; // USDT (BSC)
+const GDSX = "0xFa9d637329C79bCa321e2Bf0179ae78Bcb3d235a"; // GDSX Token
+const chainId = 56; // BNB Chain
+
+let provider, signer, account;
+const $ = id => document.getElementById(id);
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),3200);}
+
+async function connect(){
+  if(!window.ethereum){alert("กรุณาติดตั้ง MetaMask");return;}
+  provider=new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send("eth_requestAccounts",[]);
+  signer=provider.getSigner();
+  account=await signer.getAddress();
+  toast("✅ เชื่อมต่อกระเป๋าแล้ว");
+}
+
+async function buyGDSX(){
+  if(!signer) await connect();
+  const amt=$("usdtAmount").value;
+  if(!amt||amt<=0) return toast("⚠️ กรุณาใส่จำนวน USDT");
+  const amount=ethers.utils.parseUnits(amt,18).toString();
+  const url=`https://api.1inch.io/v5.0/${chainId}/swap?fromTokenAddress=${USDT}&toTokenAddress=${GDSX}&amount=${amount}&fromAddress=${account}&slippage=1`;
+  toast("⏳ กำลังตรวจสอบเส้นทาง Swap...");
+  try{
+    const res=await fetch(url);const data=await res.json();
+    if(data.tx){
+      toast("💰 เปิด MetaMask เพื่อยืนยันการ Swap...");
+      const txHash=await window.ethereum.request({
+        method:'eth_sendTransaction',params:[data.tx],
+      });
+      toast(`✅ สำเร็จ! ธุรกรรม: ${txHash.slice(0,10)}...`);
+    }else{
+      toast("❌ ไม่พบเส้นทาง Swap (อาจไม่มี Liquidity)");
+      console.log(data);
+    }
+  }catch(e){console.error(e);toast("❌ เกิดข้อผิดพลาด โปรดลองใหม่");}
+}
+</script>
+</body>
+</html>
