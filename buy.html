@@ -93,66 +93,67 @@ footer p {
 
 <footer><p>🌟 The Future of Digital Gold • GDSX Finance © 2025 🌟</p></footer>
 <div id="toast" class="toast"></div>
-
 <script>
-const CONTRACT="0x247036F7B77861e3aA5bF966466f43D29D3C962d";
-const USDT="0x55d398326f99059fF775485246999027B3197955";
-const rate=10;
+const CONTRACT="0x247036F7B77861e3aA5bF966466f43D29D3C962d"; // ✅ Payment ใหม่
+const USDT="0x55d398326f99059fF775485246999027B3197955";    // USDT (BEP20)
+const rate=10; // 1 USDT = 10 GDSX
 let provider,signer,account,usdt,contract;
+
 const abiUSDT=[
-"function approve(address spender,uint256 value) external returns(bool)",
-"function balanceOf(address owner) view returns(uint256)"
+  "function approve(address spender,uint256 value) external returns(bool)",
+  "function balanceOf(address owner) view returns(uint256)"
 ];
 const abiPay=[
-"function buyGDSX(uint256 usdtAmount) external",
-"function rate() view returns(uint256)"
+  "function buy(uint256 usdtAmount) external", // ✅ แก้ชื่อฟังก์ชันให้ตรงกับ Smart Contract
+  "function rate() view returns(uint256)"
 ];
 
 const $=id=>document.getElementById(id);
-function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
+function toast(m){
+  const t=$("toast");t.textContent=m;t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2500);
+}
 
 async function connect(){
- try{
-  if(!window.ethereum){alert("Install MetaMask");return;}
-  provider=new ethers.providers.Web3Provider(window.ethereum);
-  await provider.send("eth_requestAccounts",[]);
-  signer=provider.getSigner();
-  account=await signer.getAddress();
-  usdt=new ethers.Contract(USDT,abiUSDT,signer);
-  contract=new ethers.Contract(CONTRACT,abiPay,signer);
-  toast("✅ Wallet connected");
-  updateBalance();
- }catch(e){console.log(e);toast("❌ Connect failed");}
+  try{
+    if(!window.ethereum){alert("Install MetaMask");return;}
+    provider=new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts",[]);
+    signer=provider.getSigner();
+    account=await signer.getAddress();
+    usdt=new ethers.Contract(USDT,abiUSDT,signer);
+    contract=new ethers.Contract(CONTRACT,abiPay,signer);
+    toast("✅ Wallet connected");
+    updateBalance();
+  }catch(e){console.log(e);toast("❌ Connect failed");}
 }
 
 async function updateBalance(){
- try{
-  const bal=await usdt.balanceOf(account);
-  const dec=ethers.utils.formatUnits(bal,18);
-  $("usdtBal").textContent=parseFloat(dec).toFixed(4);
- }catch(e){$("usdtBal").textContent="—";}
+  try{
+    const bal=await usdt.balanceOf(account);
+    const dec=ethers.utils.formatUnits(bal,18);
+    $("usdtBal").textContent=parseFloat(dec).toFixed(4);
+  }catch(e){$("usdtBal").textContent="—";}
 }
 
 $("usdtAmount").addEventListener("input",()=>{
- const v=parseFloat($("usdtAmount").value||0);
- $("gdsxResult").textContent=`You will receive: ${(v*rate).toFixed(2)} GDSX`;
+  const v=parseFloat($("usdtAmount").value||0);
+  $("gdsxResult").textContent=`You will receive: ${(v*rate).toFixed(2)} GDSX`;
 });
 
 async function buyGDSX(){
- if(!signer)return connect();
- const amt=$("usdtAmount").value;
- if(!amt||amt<=0)return toast("Enter amount > 0");
- const val=ethers.utils.parseUnits(amt,18);
- try{
-  toast("🔄 Approving USDT…");
-  const tx1=await usdt.approve(CONTRACT,val);await tx1.wait();
-  toast("💰 Buying GDSX…");
-  const tx2=await contract.buyGDSX(val);await tx2.wait();
-  toast("✅ Purchase complete!");
-  $("usdtAmount").value="";$("gdsxResult").textContent="You will receive: 0 GDSX";
-  updateBalance();
- }catch(e){console.log(e);toast("❌ Transaction failed");}
+  if(!signer)return connect();
+  const amt=$("usdtAmount").value;
+  if(!amt||amt<=0)return toast("Enter amount > 0");
+  const val=ethers.utils.parseUnits(amt,18);
+  try{
+    toast("🔄 Approving USDT…");
+    const tx1=await usdt.approve(CONTRACT,val);await tx1.wait();
+    toast("💰 Buying GDSX…");
+    const tx2=await contract.buy(val);await tx2.wait(); // ✅ เรียก buy() ที่ถูกต้อง
+    toast("✅ Purchase complete!");
+    $("usdtAmount").value="";$("gdsxResult").textContent="You will receive: 0 GDSX";
+    updateBalance();
+  }catch(e){console.log(e);toast("❌ Transaction failed");}
 }
 </script>
-</body>
-</html>
