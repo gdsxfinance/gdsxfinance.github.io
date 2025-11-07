@@ -20,7 +20,7 @@ pragma solidity ^0.8.24;
  * - setTreasury() → เปลี่ยนที่อยู่คลังเก็บ USDT
  * 
  * 🔗 Contract Address:
- *    0x9E8f57E617c1520FD55A0B732C835EAC73a40F34
+ *    0x247036F7B77861e3aA5bF966466f43D29D3C962d
  * 
  * © 2025 GDSX Project | Gold Digital System X
  */
