@@ -3,56 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💰 BUY GDSX PRO v3.2 — Stable CORS FIX</title>
+<title>💰 BUY GDSX PRO v3.3 — Auto CORS Fix</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <style>
 :root{--gold:#ffd700;--neon:#00ffd5;}
-body{
-  background:radial-gradient(circle at top,#000 40%,#111 100%);
-  color:#fff;font-family:"Poppins","Noto Sans Thai",sans-serif;
-  text-align:center;overflow-x:hidden;min-height:100vh;margin:0;
-}
+body{background:radial-gradient(circle at top,#000 40%,#111 100%);
+color:#fff;font-family:"Poppins","Noto Sans Thai",sans-serif;
+text-align:center;overflow-x:hidden;min-height:100vh;margin:0;}
 .logo{width:90px;height:90px;border-radius:50%;margin-top:20px;
-  box-shadow:0 0 30px rgba(255,215,0,.8);animation:spin 10s linear infinite;}
+box-shadow:0 0 30px rgba(255,215,0,.8);animation:spin 10s linear infinite;}
 @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 h1{color:var(--gold);text-shadow:0 0 10px var(--gold);}
-.panel{
-  background:rgba(20,20,20,.9);border:1px solid var(--gold);
-  border-radius:18px;padding:25px;margin:25px auto;
-  width:90%;max-width:420px;box-shadow:0 0 15px rgba(255,215,0,.3);
-}
+.panel{background:rgba(20,20,20,.9);border:1px solid var(--gold);
+border-radius:18px;padding:25px;margin:25px auto;width:90%;max-width:420px;
+box-shadow:0 0 15px rgba(255,215,0,.3);}
 input{width:80%;padding:12px;margin-top:10px;border-radius:10px;
-  border:1px solid rgba(255,215,0,.3);background:#111;color:#fff;text-align:center;}
-button{
-  margin-top:15px;padding:12px 25px;border-radius:12px;cursor:pointer;font-weight:700;
-  transition:.3s;
-}
-.buy{
-  background:linear-gradient(90deg,#00ffcc,#00cc99);color:#111;border:none;
-  box-shadow:0 0 20px rgba(0,255,204,.7);
-}
-.back{
-  background:linear-gradient(90deg,#333,#555);
-  color:var(--gold);border:1px solid var(--gold);
-}
-.toast{
-  position:fixed;left:50%;bottom:60px;transform:translateX(-50%);
-  background:rgba(20,20,20,.95);border:1px solid var(--gold);
-  color:#fff;padding:10px 16px;border-radius:12px;
-  box-shadow:0 0 12px rgba(255,215,0,.35);display:none;z-index:1600;font-size:.95em;
-}
+border:1px solid rgba(255,215,0,.3);background:#111;color:#fff;text-align:center;}
+button{margin-top:15px;padding:12px 25px;border-radius:12px;cursor:pointer;font-weight:700;transition:.3s;}
+.buy{background:linear-gradient(90deg,#00ffcc,#00cc99);color:#111;border:none;
+box-shadow:0 0 20px rgba(0,255,204,.7);}
+.back{background:linear-gradient(90deg,#333,#555);
+color:var(--gold);border:1px solid var(--gold);}
+.toast{position:fixed;left:50%;bottom:60px;transform:translateX(-50%);
+background:rgba(20,20,20,.95);border:1px solid var(--gold);
+color:#fff;padding:10px 16px;border-radius:12px;
+box-shadow:0 0 12px rgba(255,215,0,.35);display:none;z-index:1600;font-size:.95em;}
 .toast.show{display:block;}
-.wallet{
-  position:fixed;top:10px;right:15px;background:rgba(30,30,30,.9);
-  border:1px solid var(--gold);border-radius:10px;padding:6px 10px;
-  color:var(--gold);font-size:.8em;text-shadow:0 0 5px var(--gold);
-}
+.wallet{position:fixed;top:10px;right:15px;background:rgba(30,30,30,.9);
+border:1px solid var(--gold);border-radius:10px;padding:6px 10px;
+color:var(--gold);font-size:.8em;text-shadow:0 0 5px var(--gold);}
 .balances{font-size:.9em;margin-top:8px;line-height:1.6em;}
 footer{position:fixed;bottom:0;width:100%;height:30px;background:#111;
-  border-top:1px solid rgba(255,215,0,.5);overflow:hidden;}
+border-top:1px solid rgba(255,215,0,.5);overflow:hidden;}
 footer p{color:var(--gold);white-space:nowrap;font-size:.9em;font-weight:600;
-  animation:scrollText 18s linear infinite;text-shadow:0 0 6px var(--gold);}
+animation:scrollText 18s linear infinite;text-shadow:0 0 6px var(--gold);}
 @keyframes scrollText{from{transform:translateX(100%);}to{transform:translateX(-100%);}}
 </style>
 </head>
@@ -61,7 +46,7 @@ footer p{color:var(--gold);white-space:nowrap;font-size:.9em;font-weight:600;
 <div id="walletInfo" class="wallet">🦊 กำลังเชื่อมต่อ...</div>
 <img src="logo.png" class="logo" alt="GDSX Logo">
 <h1>💰 BUY GDSX PRO</h1>
-<p>ระบบซื้อขาย GDSX ผ่าน MetaMask โดยตรง<br>เวอร์ชันใหม่ แก้ปัญหา CORS แล้ว ✅</p>
+<p>ระบบซื้อขาย GDSX ผ่าน MetaMask โดยตรง<br>เวอร์ชันใหม่ (Auto CORS Fix)</p>
 
 <div class="panel">
   <input id="usdtAmount" type="number" placeholder="ใส่จำนวน USDT ที่ต้องการใช้ซื้อ">
@@ -77,7 +62,7 @@ footer p{color:var(--gold);white-space:nowrap;font-size:.9em;font-weight:600;
 const USDT="0x55d398326f99059fF775485246999027B3197955";
 const GDSX="0xFa9d637329C79bCa321e2Bf0179ae78Bcb3d235a";
 const CHAIN_ID=56;
-const PROXY="https://corsproxy.io/?";
+const PROXY="https://thingproxy.freeboard.io/fetch/";
 
 let provider, signer, account;
 const $=id=>document.getElementById(id);
@@ -139,10 +124,13 @@ async function buyGDSX(){
     const amount=ethers.utils.parseUnits(amt,18).toString();
 
     toast("⏳ กำลังดึงข้อมูล Swap (ผ่าน Proxy)...");
-    const targetUrl=`https://api.1inch.io/v5.0/${CHAIN_ID}/swap?fromTokenAddress=${USDT}&toTokenAddress=${GDSX}&amount=${amount}&fromAddress=${account}&slippage=1`;
-    const proxyUrl=PROXY+encodeURIComponent(targetUrl);
-    const res=await fetch(proxyUrl);
-    const data=await res.json();
+    const api=`https://api.1inch.io/v5.0/${CHAIN_ID}/swap?fromTokenAddress=${USDT}&toTokenAddress=${GDSX}&amount=${amount}&fromAddress=${account}&slippage=1`;
+    const url=PROXY+encodeURIComponent(api);
+    const res=await fetch(url);
+    const text=await res.text();
+    let data;
+    try{ data=JSON.parse(text); }
+    catch{ toast("⚠️ Proxy ตอบกลับ HTML ไม่ใช่ JSON"); return; }
 
     if(!data.tx){toast("❌ ไม่พบเส้นทาง Swap");return;}
     toast("💰 เปิด MetaMask เพื่อยืนยัน...");
