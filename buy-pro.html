@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💰 BUY GDSX PRO v3.1 — CORS FIX</title>
+<title>💰 BUY GDSX PRO v3.2 — Stable CORS FIX</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <style>
@@ -61,7 +61,7 @@ footer p{color:var(--gold);white-space:nowrap;font-size:.9em;font-weight:600;
 <div id="walletInfo" class="wallet">🦊 กำลังเชื่อมต่อ...</div>
 <img src="logo.png" class="logo" alt="GDSX Logo">
 <h1>💰 BUY GDSX PRO</h1>
-<p>ซื้อเหรียญ GDSX ผ่าน MetaMask โดยตรง<br>เชื่อมต่อ 1inch API พร้อม Proxy ปลอดภัย</p>
+<p>ระบบซื้อขาย GDSX ผ่าน MetaMask โดยตรง<br>เวอร์ชันใหม่ แก้ปัญหา CORS แล้ว ✅</p>
 
 <div class="panel">
   <input id="usdtAmount" type="number" placeholder="ใส่จำนวน USDT ที่ต้องการใช้ซื้อ">
@@ -77,7 +77,7 @@ footer p{color:var(--gold);white-space:nowrap;font-size:.9em;font-weight:600;
 const USDT="0x55d398326f99059fF775485246999027B3197955";
 const GDSX="0xFa9d637329C79bCa321e2Bf0179ae78Bcb3d235a";
 const CHAIN_ID=56;
-const PROXY="https://api.allorigins.win/raw?url=";
+const PROXY="https://corsproxy.io/?";
 
 let provider, signer, account;
 const $=id=>document.getElementById(id);
