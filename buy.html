@@ -14,9 +14,8 @@ body {
   text-align:center; overflow-x:hidden; min-height:100vh; margin:0;
 }
 .logo {
-  width:90px; height:90px; border-radius:50%;
-  object-fit:cover; margin-top:25px;
-  box-shadow:0 0 30px rgba(255,215,0,0.8);
+  width:90px;height:90px;border-radius:50%;object-fit:cover;
+  margin-top:25px;box-shadow:0 0 30px rgba(255,215,0,0.8);
   animation:spin 10s linear infinite;
 }
 @keyframes spin {from{transform:rotate(0)}to{transform:rotate(360deg)}}
@@ -33,10 +32,9 @@ input {
   background:#111;color:#fff;font-size:1em;
 }
 button {
-  background:linear-gradient(90deg,#222,#444);
-  color:var(--gold);border:1px solid var(--gold);
-  border-radius:10px;padding:10px 20px;margin:5px;cursor:pointer;
-  transition:.3s;
+  background:linear-gradient(90deg,#222,#444);color:var(--gold);
+  border:1px solid var(--gold);border-radius:10px;padding:10px 20px;
+  margin:5px;cursor:pointer;transition:.3s;
 }
 button:hover {background:rgba(255,215,0,0.2);}
 button.buy {
@@ -44,12 +42,17 @@ button.buy {
   color:#111;font-weight:700;border:none;border-radius:12px;
   padding:12px 25px;cursor:pointer;box-shadow:0 0 20px rgba(0,255,204,.7);
 }
+button.back {
+  background:linear-gradient(90deg,#ffd700,#ffcc33);
+  color:#111;font-weight:700;border:none;border-radius:12px;
+  padding:10px 25px;margin-top:10px;
+  box-shadow:0 0 15px rgba(255,215,0,.6);
+}
 .toast {
   position:fixed;left:50%;bottom:60px;transform:translateX(-50%);
   background:rgba(20,20,20,.95);border:1px solid var(--gold);
   color:#fff;padding:8px 14px;border-radius:10px;
-  box-shadow:0 0 12px rgba(255,215,0,.35);
-  display:none;z-index:1600;
+  box-shadow:0 0 12px rgba(255,215,0,.35);display:none;z-index:1600;
 }
 .toast.show{display:block;}
 .connect-btn {
@@ -88,15 +91,17 @@ footer p {
   <p>Your USDT Balance: <b id="usdtBal">0.0000</b></p>
   <input type="number" id="usdtAmount" placeholder="Enter amount (USDT)">
   <p id="gdsxResult">You will receive: 0 GDSX</p>
-  <button class="buy" onclick="buyGDSX()">💰 BUY NOW</button>
+  <button class="buy" onclick="quickBuy()">⚡ BUY NOW (FAST)</button>
+  <button class="back" onclick="goBack()">🔙 กลับหน้าหลัก</button>
 </div>
 
 <footer><p>🌟 The Future of Digital Gold • GDSX Finance © 2025 🌟</p></footer>
 <div id="toast" class="toast"></div>
+
 <script>
-const CONTRACT="0x247036F7B77861e3aA5bF966466f43D29D3C962d"; // ✅ Payment ใหม่
+const CONTRACT="0x247036F7B77861e3aA5bF966466f43D29D3C962d"; // ✅ Payment Contract ใหม่
 const USDT="0x55d398326f99059fF775485246999027B3197955";    // USDT (BEP20)
-const rate=10; // 1 USDT = 10 GDSX
+const rate=10;
 let provider,signer,account,usdt,contract;
 
 const abiUSDT=[
@@ -104,15 +109,12 @@ const abiUSDT=[
   "function balanceOf(address owner) view returns(uint256)"
 ];
 const abiPay=[
-  "function buy(uint256 usdtAmount) external", // ✅ แก้ชื่อฟังก์ชันให้ตรงกับ Smart Contract
+  "function buy(uint256 usdtAmount) external", 
   "function rate() view returns(uint256)"
 ];
 
 const $=id=>document.getElementById(id);
-function toast(m){
-  const t=$("toast");t.textContent=m;t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"),2500);
-}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
 
 async function connect(){
   try{
@@ -141,19 +143,29 @@ $("usdtAmount").addEventListener("input",()=>{
   $("gdsxResult").textContent=`You will receive: ${(v*rate).toFixed(2)} GDSX`;
 });
 
-async function buyGDSX(){
+// 🪙 One-Click Fast Buy (Approve + Buy ในขั้นตอนเดียว)
+async function quickBuy(){
   if(!signer)return connect();
   const amt=$("usdtAmount").value;
   if(!amt||amt<=0)return toast("Enter amount > 0");
   const val=ethers.utils.parseUnits(amt,18);
   try{
-    toast("🔄 Approving USDT…");
-    const tx1=await usdt.approve(CONTRACT,val);await tx1.wait();
-    toast("💰 Buying GDSX…");
-    const tx2=await contract.buy(val);await tx2.wait(); // ✅ เรียก buy() ที่ถูกต้อง
+    toast("🚀 Processing Fast Purchase...");
+    const tx1=await usdt.approve(CONTRACT,val);
+    await tx1.wait();
+    const tx2=await contract.buy(val);
+    await tx2.wait();
     toast("✅ Purchase complete!");
-    $("usdtAmount").value="";$("gdsxResult").textContent="You will receive: 0 GDSX";
+    $("usdtAmount").value="";
+    $("gdsxResult").textContent="You will receive: 0 GDSX";
     updateBalance();
   }catch(e){console.log(e);toast("❌ Transaction failed");}
 }
+
+// 🔙 กลับหน้าหลัก (สามารถเปลี่ยน URL ได้)
+function goBack(){
+  window.location.href="index.html"; // 👉 แก้เป็น URL หน้าเว็บหลัก เช่น: "https://gdsxfinance.github.io/"
+}
 </script>
+</body>
+</html>
