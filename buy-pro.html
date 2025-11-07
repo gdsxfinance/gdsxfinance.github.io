@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💰 BUY GDSX PRO v3 — Secure Swap</title>
+<title>💰 BUY GDSX PRO v3.1 — CORS FIX</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <style>
@@ -61,7 +61,7 @@ footer p{color:var(--gold);white-space:nowrap;font-size:.9em;font-weight:600;
 <div id="walletInfo" class="wallet">🦊 กำลังเชื่อมต่อ...</div>
 <img src="logo.png" class="logo" alt="GDSX Logo">
 <h1>💰 BUY GDSX PRO</h1>
-<p>ซื้อเหรียญ GDSX ผ่าน MetaMask โดยตรง<br>ราคาดี ปลอดภัย ไม่ต้อง Approve เอง</p>
+<p>ซื้อเหรียญ GDSX ผ่าน MetaMask โดยตรง<br>เชื่อมต่อ 1inch API พร้อม Proxy ปลอดภัย</p>
 
 <div class="panel">
   <input id="usdtAmount" type="number" placeholder="ใส่จำนวน USDT ที่ต้องการใช้ซื้อ">
@@ -77,29 +77,26 @@ footer p{color:var(--gold);white-space:nowrap;font-size:.9em;font-weight:600;
 const USDT="0x55d398326f99059fF775485246999027B3197955";
 const GDSX="0xFa9d637329C79bCa321e2Bf0179ae78Bcb3d235a";
 const CHAIN_ID=56;
+const PROXY="https://api.allorigins.win/raw?url=";
 
 let provider, signer, account;
 const $=id=>document.getElementById(id);
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),3500);}
 
-// ✅ ตรวจและสลับไป BNB Chain
 async function ensureBSC(){
   const hexId="0x38";
   try{
-    const cur = await window.ethereum.request({method:"eth_chainId"});
+    const cur=await window.ethereum.request({method:"eth_chainId"});
     if(cur.toLowerCase()!==hexId){
-      await window.ethereum.request({
-        method:"wallet_switchEthereumChain",
-        params:[{chainId:hexId}]
-      });
+      await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:hexId}]});
     }
   }catch(e){
     if(e.code===4902){
       await window.ethereum.request({
         method:"wallet_addEthereumChain",
         params:[{
-          chainId: hexId,
-          chainName: "BNB Smart Chain",
+          chainId:hexId,
+          chainName:"BNB Smart Chain",
           nativeCurrency:{name:"BNB",symbol:"BNB",decimals:18},
           rpcUrls:["https://bsc-dataseed.binance.org"],
           blockExplorerUrls:["https://bscscan.com"]
@@ -109,7 +106,6 @@ async function ensureBSC(){
   }
 }
 
-// ✅ เชื่อม MetaMask อัตโนมัติ
 async function connectWallet(){
   if(!window.ethereum){$("walletInfo").textContent="❌ ไม่มี MetaMask";return;}
   await ensureBSC();
@@ -121,7 +117,6 @@ async function connectWallet(){
   updateBalances();
 }
 
-// ✅ แสดงยอด
 async function updateBalances(){
   try{
     const [usdtBal,gdsxBal,bnbBal]=await Promise.all([
@@ -136,19 +131,20 @@ async function updateBalances(){
   }catch(e){console.log(e);}
 }
 
-// ✅ ฟังก์ชันซื้อ GDSX (ผ่าน 1inch)
 async function buyGDSX(){
   try{
     if(!signer) await connectWallet();
     const amt=$("usdtAmount").value;
-    if(!amt||amt<=0) return toast("⚠️ ใส่จำนวน USDT ก่อน");
+    if(!amt||amt<=0) return toast("⚠️ กรุณาใส่จำนวน USDT");
     const amount=ethers.utils.parseUnits(amt,18).toString();
 
-    toast("⏳ กำลังดึงข้อมูล Swap...");
-    const url=`https://api.1inch.io/v5.0/${CHAIN_ID}/swap?fromTokenAddress=${USDT}&toTokenAddress=${GDSX}&amount=${amount}&fromAddress=${account}&slippage=1`;
-    const res=await fetch(url); const data=await res.json();
+    toast("⏳ กำลังดึงข้อมูล Swap (ผ่าน Proxy)...");
+    const targetUrl=`https://api.1inch.io/v5.0/${CHAIN_ID}/swap?fromTokenAddress=${USDT}&toTokenAddress=${GDSX}&amount=${amount}&fromAddress=${account}&slippage=1`;
+    const proxyUrl=PROXY+encodeURIComponent(targetUrl);
+    const res=await fetch(proxyUrl);
+    const data=await res.json();
 
-    if(!data.tx){toast("❌ ไม่มีเส้นทาง Swap");return;}
+    if(!data.tx){toast("❌ ไม่พบเส้นทาง Swap");return;}
     toast("💰 เปิด MetaMask เพื่อยืนยัน...");
     const txHash=await window.ethereum.request({method:'eth_sendTransaction',params:[data.tx]});
     toast(`✅ สำเร็จ! Tx: ${txHash.slice(0,10)}...`);
@@ -160,16 +156,13 @@ async function buyGDSX(){
   }
 }
 
-// 🧭 โหลดอัตโนมัติ
 window.addEventListener("load",()=>{
   if(window.ethereum){
     connectWallet();
     setInterval(()=>{if(account)updateBalances();},30000);
     window.ethereum.on?.('accountsChanged',()=>connectWallet());
     window.ethereum.on?.('chainChanged',()=>location.reload());
-  }else{
-    $("walletInfo").textContent="❌ ไม่มี MetaMask";
-  }
+  }else{$("walletInfo").textContent="❌ ไม่มี MetaMask";}
 });
 </script>
 </body>
