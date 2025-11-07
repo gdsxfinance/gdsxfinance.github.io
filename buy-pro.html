@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💰 BUY GDSX PRO — PancakeSwap Direct</title>
+<title>💰 BUY GDSX PRO v3.4 — Auto Mobile Link</title>
 <style>
 :root{--gold:#ffd700;--neon:#00ffd5;}
 body{
@@ -45,7 +45,7 @@ footer p{color:var(--gold);white-space:nowrap;font-size:.9em;font-weight:600;
 <body>
 <img src="logo.png" class="logo" alt="GDSX Logo">
 <h1>💰 BUY GDSX</h1>
-<p>ซื้อขายเหรียญ GDSX ผ่าน PancakeSwap โดยตรง</p>
+<p>ซื้อขายเหรียญ GDSX ผ่าน MetaMask หรือ PancakeSwap โดยตรง</p>
 
 <div class="panel">
   <input id="usdtAmount" type="number" placeholder="(ไม่ต้องใส่ก็ได้)">
@@ -59,8 +59,20 @@ footer p{color:var(--gold);white-space:nowrap;font-size:.9em;font-weight:600;
 function goSwap(){
   const USDT = "0x55d398326f99059fF775485246999027B3197955";
   const GDSX = "0xFa9d637329C79bCa321e2Bf0179ae78Bcb3d235a";
-  const url = `https://pancakeswap.finance/swap?inputCurrency=${USDT}&outputCurrency=${GDSX}`;
-  window.open(url, "_blank");
+  const swapURL = `https://pancakeswap.finance/swap?inputCurrency=${USDT}&outputCurrency=${GDSX}`;
+  const deepLink = `metamask://dapp/pancakeswap.finance/swap?inputCurrency=${USDT}&outputCurrency=${GDSX}`;
+
+  // ตรวจอุปกรณ์
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  
+  if(isMobile){
+    // เปิดใน MetaMask App โดยตรง
+    window.location.href = deepLink;
+    setTimeout(()=>{ window.open(swapURL, "_blank"); }, 1500);
+  } else {
+    // เปิดในคอมปกติ → หน้า PancakeSwap
+    window.open(swapURL, "_blank");
+  }
 }
 </script>
 </body>
