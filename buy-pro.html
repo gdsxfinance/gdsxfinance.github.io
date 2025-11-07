@@ -1,89 +1,44 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💰 BUY GDSX PRO v3 — MetaMask Swap</title>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-<style>
-:root{--gold:#ffd700;--neon:#00ffd5;}
-body{
-  background:radial-gradient(circle at top,#000 40%,#111 100%);
-  color:#fff;font-family:"Poppins","Noto Sans Thai",sans-serif;
-  text-align:center;overflow-x:hidden;min-height:100vh;margin:0;
-}
-.logo{width:90px;height:90px;border-radius:50%;margin-top:20px;
-  box-shadow:0 0 30px rgba(255,215,0,.8);animation:spin 10s linear infinite;}
-@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-h1{color:var(--gold);text-shadow:0 0 10px var(--gold);}
-.panel{
-  background:rgba(20,20,20,.9);border:1px solid var(--gold);
-  border-radius:18px;padding:25px;margin:25px auto;
-  width:90%;max-width:420px;box-shadow:0 0 15px rgba(255,215,0,.3);
-}
-input{width:80%;padding:12px;margin-top:10px;border-radius:10px;
-  border:1px solid rgba(255,215,0,.3);background:#111;color:#fff;text-align:center;}
-button{
-  margin-top:15px;padding:12px 25px;border-radius:12px;cursor:pointer;font-weight:700;
-  transition:.3s;
-}
-.buy{
-  background:linear-gradient(90deg,#00ffcc,#00cc99);color:#111;border:none;
-  box-shadow:0 0 20px rgba(0,255,204,.7);
-}
-.back{
-  background:linear-gradient(90deg,#333,#555);
-  color:var(--gold);border:1px solid var(--gold);
-}
-.toast{
-  position:fixed;left:50%;bottom:60px;transform:translateX(-50%);
-  background:rgba(20,20,20,.95);border:1px solid var(--gold);
-  color:#fff;padding:10px 16px;border-radius:12px;
-  box-shadow:0 0 12px rgba(255,215,0,.35);display:none;z-index:1600;font-size:.95em;
-}
-.toast.show{display:block;}
-.wallet{
-  position:fixed;top:10px;right:15px;background:rgba(30,30,30,.9);
-  border:1px solid var(--gold);border-radius:10px;padding:6px 10px;
-  color:var(--gold);font-size:.8em;text-shadow:0 0 5px var(--gold);
-}
-.balances{font-size:.9em;margin-top:8px;line-height:1.6em;}
-footer{position:fixed;bottom:0;width:100%;height:30px;background:#111;
-  border-top:1px solid rgba(255,215,0,.5);overflow:hidden;}
-footer p{color:var(--gold);white-space:nowrap;font-size:.9em;font-weight:600;
-  animation:scrollText 18s linear infinite;text-shadow:0 0 6px var(--gold);}
-@keyframes scrollText{from{transform:translateX(100%);}to{transform:translateX(-100%);}}
-</style>
-</head>
-
-<body>
-<div id="walletInfo" class="wallet">🦊 กำลังเชื่อมต่อ...</div>
-<img src="logo.png" class="logo" alt="GDSX Logo">
-<h1>💰 BUY GDSX PRO</h1>
-<p>ซื้อเหรียญ GDSX ผ่าน MetaMask โดยตรง<br>ราคาดี ปลอดภัย ไม่ต้อง Approve</p>
-
-<div class="panel">
-  <input id="usdtAmount" type="number" placeholder="ใส่จำนวน USDT ที่ต้องการใช้ซื้อ">
-  <div class="balances" id="balances">USDT – 0 | GDSX – 0 | BNB – 0</div>
-  <button class="buy" onclick="buyGDSX()">💎 SWAP NOW</button><br>
-  <button class="back" onclick="location.href='index.html'">⬅️ กลับหน้าแรก</button>
-</div>
-
-<div id="toast" class="toast"></div>
-<footer><p>🌟 GDSX Finance — The Future of Digital Gold • 2025 🌟</p></footer>
-
 <script>
 const USDT="0x55d398326f99059fF775485246999027B3197955";
 const GDSX="0xFa9d637329C79bCa321e2Bf0179ae78Bcb3d235a";
-const chainId=56;
-let provider,signer,account;
-const $=id=>document.getElementById(id);
-function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),3200);}
+const CHAIN_ID=56; // BNB Chain
 
-// ✅ เชื่อมต่อ MetaMask อัตโนมัติ
+let provider, signer, account;
+const $=id=>document.getElementById(id);
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),3500);}
+
+async function ensureBSC(){
+  const hexId="0x38"; // 56
+  try{
+    const cur = await window.ethereum.request({method:"eth_chainId"});
+    if(cur.toLowerCase()!==hexId){
+      await window.ethereum.request({
+        method:"wallet_switchEthereumChain",
+        params:[{chainId:hexId}]
+      });
+    }
+  }catch(e){
+    // ถ้าไม่มี BSC ในวอลเล็ต ให้ลองเพิ่มให้
+    if(e.code===4902){
+      await window.ethereum.request({
+        method:"wallet_addEthereumChain",
+        params:[{
+          chainId: hexId,
+          chainName: "BNB Smart Chain",
+          nativeCurrency:{name:"BNB", symbol:"BNB", decimals:18},
+          rpcUrls:["https://bsc-dataseed.binance.org"],
+          blockExplorerUrls:["https://bscscan.com"]
+        }]
+      });
+    }else{
+      throw e;
+    }
+  }
+}
+
 async function connectWallet(){
   if(!window.ethereum){$("walletInfo").textContent="❌ ไม่มี MetaMask";return;}
+  await ensureBSC();
   provider=new ethers.providers.Web3Provider(window.ethereum);
   await provider.send("eth_requestAccounts",[]);
   signer=provider.getSigner();
@@ -92,7 +47,6 @@ async function connectWallet(){
   updateBalances();
 }
 
-// ✅ ดึงยอด USDT / GDSX / BNB ของผู้ใช้
 async function updateBalances(){
   try{
     const [usdtBal,gdsxBal,bnbBal]=await Promise.all([
@@ -107,33 +61,91 @@ async function updateBalances(){
   }catch(e){console.log(e);}
 }
 
-// ✅ กดปุ่ม BUY เพื่อ Swap ผ่าน MetaMask
-async function buyGDSX(){
-  if(!signer) await connectWallet();
-  const amt=$("usdtAmount").value;
-  if(!amt||amt<=0)return toast("⚠️ กรุณาใส่จำนวน USDT");
-  const amount=ethers.utils.parseUnits(amt,18).toString();
-  const url=`https://api.1inch.io/v5.0/${chainId}/swap?fromTokenAddress=${USDT}&toTokenAddress=${GDSX}&amount=${amount}&fromAddress=${account}&slippage=1`;
-  toast("⏳ กำลังตรวจสอบเส้นทาง Swap...");
-  try{
-    const res=await fetch(url);const data=await res.json();
-    if(data.tx){
-      toast("💰 เปิด MetaMask เพื่อยืนยันการ Swap...");
-      const txHash=await window.ethereum.request({method:'eth_sendTransaction',params:[data.tx],});
-      toast(`✅ สำเร็จ! Tx: ${txHash.slice(0,10)}...`);
-      updateBalances();
-    }else{
-      toast("❌ ไม่พบเส้นทาง Swap (อาจไม่มี Liquidity)");
-      console.log(data);
-    }
-  }catch(e){console.error(e);toast("❌ เกิดข้อผิดพลาด โปรดลองใหม่");}
+// ------- 1inch helpers -------
+async function getSpender(){
+  const url=`https://api.1inch.io/v5.0/${CHAIN_ID}/approve/spender`;
+  const r=await fetch(url); const j=await r.json();
+  if(!j.address) throw new Error("ไม่พบ 1inch spender");
+  return j.address;
+}
+async function getAllowance(owner, token){
+  const url=`https://api.1inch.io/v5.0/${CHAIN_ID}/approve/allowance?tokenAddress=${token}&walletAddress=${owner}`;
+  const r=await fetch(url); const j=await r.json();
+  return ethers.BigNumber.from(j.allowance||"0");
+}
+async function buildApproveTx(token, amount){
+  const url=`https://api.1inch.io/v5.0/${CHAIN_ID}/approve/transaction?tokenAddress=${token}&amount=${amount}`;
+  const r=await fetch(url); const j=await r.json();
+  if(!j.to||!j.data) throw new Error("สร้าง approve tx ไม่ได้");
+  return j;
 }
 
-// ⏱ รีเฟรชยอดอัตโนมัติทุก 30 วินาที
+async function buyGDSX(){
+  try{
+    if(!signer) await connectWallet();
+    const amt=$("usdtAmount").value;
+    if(!amt||amt<=0) return toast("⚠️ กรุณาใส่จำนวน USDT");
+
+    const amount=ethers.utils.parseUnits(amt,18).toString();
+    toast("🔍 ตรวจสอบเครือข่าย / spender / allowance...");
+
+    // 1) spender + allowance
+    const spender=await getSpender();
+    const allowance=await getAllowance(account, USDT);
+    const need=ethers.BigNumber.from(amount);
+
+    // 2) approve ถ้า allowance ไม่พอ
+    if(allowance.lt(need)){
+      toast("📝 กำลัง Approve USDT...");
+      const appr=await buildApproveTx(USDT, amount); // จะ approve เท่าที่ต้องใช้
+      // ส่งผ่าน metamask
+      await window.ethereum.request({method:'eth_sendTransaction',params:[{
+        from: account,
+        to: appr.to,
+        data: appr.data,
+        value: appr.value || '0x0'
+      }]});
+      toast("✅ Approve ส่งแล้ว รอสักครู่...");
+      // รอสักนิดก่อน swap (เผื่อ index/state)
+      await new Promise(r=>setTimeout(r, 6000));
+    }
+
+    // 3) สร้าง swap tx
+    toast("⏳ สร้างคำสั่ง Swap...");
+    const url=`https://api.1inch.io/v5.0/${CHAIN_ID}/swap?fromTokenAddress=${USDT}&toTokenAddress=${GDSX}&amount=${amount}&fromAddress=${account}&slippage=1`;
+    const res=await fetch(url); const data=await res.json();
+
+    if(!data.tx){
+      console.log("1inch swap response:", data);
+      if(data.description) toast("❌ "+data.description);
+      else toast("❌ ไม่พบเส้นทาง Swap (LP อาจไม่พอ)");
+      return;
+    }
+
+    // 4) ส่ง swap tx
+    toast("💰 เปิด MetaMask เพื่อยืนยันการ Swap...");
+    const txHash=await window.ethereum.request({method:'eth_sendTransaction',params:[data.tx]});
+    toast(`✅ สำเร็จ! Tx: ${txHash.slice(0,10)}...`);
+    updateBalances();
+  }catch(e){
+    console.error(e);
+    // แสดงข้อความเข้าใจง่าย
+    if(e?.message?.includes("user rejected")) toast("❌ ผู้ใช้ยกเลิกธุรกรรม");
+    else if(e?.code===4001) toast("❌ ผู้ใช้ยกเลิกบน MetaMask");
+    else toast("❌ Swap ล้มเหลว: "+(e?.message||"unknown"));
+  }
+}
+
+// auto connect + auto refresh
 window.addEventListener("load",()=>{
-  connectWallet();
-  setInterval(()=>{if(account)updateBalances();},30000);
+  if(window.ethereum) {
+    connectWallet();
+    setInterval(()=>{ if(account) updateBalances(); }, 30000);
+    // เปลี่ยนบัญชี/เครือข่าย → อัปเดตใหม่
+    window.ethereum.on?.('accountsChanged', ()=>connectWallet());
+    window.ethereum.on?.('chainChanged', ()=>location.reload());
+  } else {
+    $("walletInfo").textContent="❌ ไม่มี MetaMask";
+  }
 });
 </script>
-</body>
-</html>
