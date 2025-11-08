@@ -185,3 +185,34 @@ footer {
 
 <div class="button-container">
   <button onclick="openQR()">💬 LINE OpenChat</button>
+  <button onclick="window.open('https://t.me/gdsxcommunity','_blank')">📢 Telegram</button>
+  <button onclick="window.open('https://facebook.com/gdsxfinance','_blank')">📘 Facebook</button>
+  <button onclick="window.open('https://youtube.com/@gdsxofficial','_blank')">▶️ YouTube</button>
+</div>
+
+<footer>© 2025 GDSX Finance — The Future of Digital Gold 💎</footer>
+
+<!-- ✅ Popup แสดง QR Code จาก GitHub -->
+<div id="qrPopup">
+  <span onclick="closeQR()">✖</span>
+  <img src="https://raw.githubusercontent.com/gdsxfinance/gdsxfinance.github.io/main/C3D7BFBD-935F-4CEA-BE90-84C02860764E.png" alt="GDSX Line QR">
+</div>
+
+<script>
+// 🌟 ดาวกระพริบพื้นหลัง
+const starsContainer = document.getElementById('stars');
+for (let i = 0; i < 70; i++) {
+  const star = document.createElement('div');
+  star.classList.add('star');
+  star.style.top = Math.random() * 100 + '%';
+  star.style.left = Math.random() * 100 + '%';
+  star.style.animationDelay = Math.random() * 3 + 's';
+  starsContainer.appendChild(star);
+}
+
+// ฟังก์ชันเปิด/ปิด QR Popup
+function openQR(){ document.getElementById('qrPopup').style.display='flex'; }
+function closeQR(){ document.getElementById('qrPopup').style.display='none'; }
+</script>
+</body>
+</html>
