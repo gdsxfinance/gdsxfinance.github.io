@@ -3,80 +3,141 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💰 BUY GDSX PRO v3.5 — Auto Mobile Link Fixed</title>
+<title>🚀 BUY GDSX — Cosmic Gold Portal</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
 <style>
-:root{--gold:#ffd700;--neon:#00ffd5;}
+:root{
+  --gold:#ffd700; --neon:#00ffd5; --space1:#00111f; --space2:#000;
+}
 body{
-  background:radial-gradient(circle at top,#000 40%,#111 100%);
-  color:#fff;font-family:"Poppins","Noto Sans Thai",sans-serif;
-  text-align:center;overflow-x:hidden;min-height:100vh;margin:0;
+  margin:0;overflow-x:hidden;min-height:100vh;
+  background:radial-gradient(circle at center,var(--space1) 0%,var(--space2) 100%);
+  color:#fff;font-family:"Poppins","Noto Sans Thai",sans-serif;text-align:center;
 }
-.logo{width:90px;height:90px;border-radius:50%;margin-top:20px;
-  box-shadow:0 0 30px rgba(255,215,0,.8);animation:spin 10s linear infinite;}
+.stars{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:radial-gradient(white,rgba(255,255,255,0)) 1px 1px/3px 3px repeat;
+  animation:moveStars 60s linear infinite;opacity:.3;z-index:0;
+}
+@keyframes moveStars{from{background-position:0 0;}to{background-position:1000px 1000px;}}
+.logo{
+  width:100px;height:100px;margin-top:20px;border-radius:50%;
+  box-shadow:0 0 40px var(--gold);animation:spin 10s linear infinite;z-index:2;position:relative;
+}
 @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-h1{color:var(--gold);text-shadow:0 0 10px var(--gold);}
-.panel{
-  background:rgba(20,20,20,.9);border:1px solid var(--gold);
-  border-radius:18px;padding:25px;margin:25px auto;
-  width:90%;max-width:420px;box-shadow:0 0 15px rgba(255,215,0,.3);
+h1{
+  color:var(--gold);text-shadow:0 0 15px var(--gold);font-size:2rem;margin-top:10px;
 }
-input{width:80%;padding:12px;margin-top:10px;border-radius:10px;
-  border:1px solid rgba(255,215,0,.3);background:#111;color:#fff;text-align:center;}
+.panel{
+  background:rgba(15,15,25,.85);border:1px solid var(--gold);
+  border-radius:18px;padding:25px;margin:25px auto;max-width:420px;
+  box-shadow:0 0 20px rgba(255,215,0,.4);position:relative;z-index:2;
+}
+input{
+  width:80%;padding:12px;margin-top:10px;border-radius:10px;
+  border:1px solid rgba(255,215,0,.3);background:#111;color:#fff;text-align:center;
+}
 button{
-  margin-top:15px;padding:12px 25px;border-radius:12px;cursor:pointer;font-weight:700;
-  transition:.3s;
+  margin-top:15px;padding:12px 25px;border-radius:12px;cursor:pointer;
+  font-weight:700;transition:.3s;
 }
 .buy{
   background:linear-gradient(90deg,#00ffcc,#00cc99);color:#111;border:none;
-  box-shadow:0 0 20px rgba(0,255,204,.7);
+  box-shadow:0 0 25px rgba(0,255,204,.9);
 }
-.buy:hover{transform:scale(1.05);box-shadow:0 0 25px rgba(0,255,204,1);}
+.buy:hover{transform:scale(1.08);}
 .back{
   background:linear-gradient(90deg,#333,#555);
   color:var(--gold);border:1px solid var(--gold);
 }
-footer{position:fixed;bottom:0;width:100%;height:30px;background:#111;
-  border-top:1px solid rgba(255,215,0,.5);overflow:hidden;}
-footer p{color:var(--gold);white-space:nowrap;font-size:.9em;font-weight:600;
-  animation:scrollText 18s linear infinite;text-shadow:0 0 6px var(--gold);}
+.balance-box{
+  text-align:left;font-size:.95rem;margin-top:15px;
+  background:rgba(255,255,255,0.05);padding:10px;border-radius:10px;
+}
+.balance-box span{color:var(--gold);}
+.wallet{
+  position:fixed;top:15px;right:20px;background:rgba(255,255,255,0.08);
+  border:1px solid var(--gold);padding:6px 12px;border-radius:10px;font-size:.8rem;
+  box-shadow:0 0 10px rgba(255,215,0,.5);
+}
+footer{
+  position:fixed;bottom:0;width:100%;height:30px;background:#111;
+  border-top:1px solid rgba(255,215,0,.5);overflow:hidden;z-index:3;
+}
+footer p{
+  color:var(--gold);white-space:nowrap;font-size:.9em;font-weight:600;
+  animation:scrollText 18s linear infinite;text-shadow:0 0 6px var(--gold);
+}
 @keyframes scrollText{from{transform:translateX(100%);}to{transform:translateX(-100%);}}
 </style>
 </head>
 
 <body>
+<div class="stars"></div>
+
+<div class="wallet" id="wallet">เชื่อมต่อ...</div>
+
 <img src="logo.png" class="logo" alt="GDSX Logo">
-<h1>💰 BUY GDSX</h1>
+<h1>🚀 BUY GDSX</h1>
 <p>ซื้อขายเหรียญ GDSX ผ่าน MetaMask หรือ PancakeSwap โดยตรง</p>
 
 <div class="panel">
-  <input id="usdtAmount" type="number" placeholder="(ไม่ต้องใส่ก็ได้)">
+  <div class="balance-box" id="balances">
+    🔹 USDT: <span id="usdtBal">-</span><br>
+    🔹 BNB: <span id="bnbBal">-</span><br>
+    🌟 GDSX: <span id="gdsxBal">-</span>
+  </div>
+
+  <input id="usdtAmount" type="number" placeholder="(จำนวน USDT)">
   <button class="buy" id="swapNow">💎 SWAP NOW</button><br>
   <button class="back" onclick="location.href='index.html'">⬅️ กลับหน้าแรก</button>
 </div>
 
-<footer><p>🌟 GDSX Finance — The Future of Digital Gold • 2025 🌟</p></footer>
+<footer><p>🌌 GDSX Finance — The Future of Digital Gold • Cosmic Edition 2025 🌟</p></footer>
 
 <script>
-document.getElementById("swapNow").addEventListener("click", () => {
-  const USDT = "0x55d398326f99059fF775485246999027B3197955";
-  const GDSX = "0xFa9d637329C79bCa321e2Bf0179ae78Bcb3d235a";
-  const pancakeURL = `https://pancakeswap.finance/swap?inputCurrency=${USDT}&outputCurrency=${GDSX}`;
-  
-  // ตรวจสอบว่าเป็นมือถือหรือไม่
-  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  const isMetaMaskApp = /MetaMask/i.test(navigator.userAgent);
+const USDT = "0x55d398326f99059fF775485246999027B3197955";
+const GDSX = "0xFa9d637329C79bCa321e2Bf0179ae78Bcb3d235a";
+let provider, signer, userAddress;
 
-  if (isMetaMaskApp) {
-    // ถ้าเปิดผ่าน MetaMask DApp Browser
-    window.location.href = pancakeURL;
-  } else if (isMobile) {
-    // ถ้ามือถือทั่วไป ให้เปิดในเบราว์เซอร์ใหม่ (Chrome / Safari)
-    window.open(pancakeURL, "_blank");
-  } else {
-    // ถ้าเปิดจากคอมพิวเตอร์
-    window.open(pancakeURL, "_blank");
-  }
+async function connectWallet(){
+  if(!window.ethereum){document.getElementById("wallet").innerText="❌ ไม่มี MetaMask";return;}
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  signer = provider.getSigner();
+  userAddress = await signer.getAddress();
+  document.getElementById("wallet").innerText = "🔗 " + userAddress.slice(0,6) + "..." + userAddress.slice(-4);
+  updateBalances();
+}
+
+async function updateBalances(){
+  try{
+    const usdt = new ethers.Contract(USDT, ["function balanceOf(address) view returns (uint256)","function decimals() view returns(uint8)"], provider);
+    const gdsx = new ethers.Contract(GDSX, ["function balanceOf(address) view returns (uint256)","function decimals() view returns(uint8)"], provider);
+    const bnb = await provider.getBalance(userAddress);
+
+    const [usdtBal, gdsxBal, bnbBal, dUSDT, dGDSX] = await Promise.all([
+      usdt.balanceOf(userAddress),
+      gdsx.balanceOf(userAddress),
+      bnb,
+      usdt.decimals(),
+      gdsx.decimals()
+    ]);
+
+    document.getElementById("usdtBal").innerText = (usdtBal / 10**dUSDT).toFixed(2) + " 💵";
+    document.getElementById("gdsxBal").innerText = (gdsxBal / 10**dGDSX).toFixed(2) + " 🌕";
+    document.getElementById("bnbBal").innerText = (ethers.utils.formatEther(bnbBal)).slice(0,6) + " 🔥";
+  }catch(e){console.log(e);}
+}
+
+document.getElementById("swapNow").addEventListener("click", ()=>{
+  const swapURL = `https://pancakeswap.finance/swap?inputCurrency=${USDT}&outputCurrency=${GDSX}`;
+  window.open(swapURL,"_blank");
 });
+
+window.addEventListener("load", connectWallet);
 </script>
 </body>
 </html>
