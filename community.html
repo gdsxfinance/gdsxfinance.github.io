@@ -3,103 +3,173 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>👥 GDSX Community</title>
+<title>👥 GDSX Community — The Future of Digital Gold</title>
 <style>
 :root {
   --gold: #ffd700;
-  --glow: 0 0 15px #ffd700, 0 0 25px #ffb700, 0 0 35px #ffaa00;
   --neon: #00ffd5;
+  --shadow: 0 0 25px #ffd700, 0 0 45px #ffb700, 0 0 65px #ffaa00;
 }
 body {
-  background: radial-gradient(circle at top, #000 40%, #111 100%);
-  color: white;
-  font-family: "Poppins","Noto Sans Thai",sans-serif;
-  text-align: center;
   margin: 0;
   padding: 0;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  font-family: "Poppins","Noto Sans Thai",sans-serif;
+  color: #fff;
+  background: radial-gradient(circle at center, #000 30%, #111 90%);
+  overflow: hidden;
+  text-align: center;
 }
-h1 {
-  color: var(--gold);
-  text-shadow: var(--glow);
-  font-size: 2.2em;
-  margin-bottom: 0.3em;
+
+/* พื้นหลังหมอกทองอวกาศ */
+.bg-glow {
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(255,215,0,0.15) 0%, transparent 70%),
+              radial-gradient(circle at 70% 30%, rgba(255,180,0,0.15) 0%, transparent 70%),
+              radial-gradient(circle at 30% 70%, rgba(255,150,0,0.1) 0%, transparent 70%);
+  animation: rotateBg 40s linear infinite;
+  z-index: 0;
 }
-h2 {
-  color: var(--neon);
-  text-shadow: 0 0 10px var(--neon);
-  margin-bottom: 40px;
+@keyframes rotateBg {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
-.links {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-a {
-  background: var(--gold);
-  color: #000;
-  text-decoration: none;
-  font-weight: bold;
-  padding: 15px 30px;
-  border-radius: 10px;
-  width: 260px;
-  margin: auto;
-  box-shadow: 0 0 20px rgba(255,215,0,0.3);
-  transition: 0.3s;
-}
-a:hover {
-  box-shadow: 0 0 25px var(--gold);
-  transform: scale(1.05);
-}
-img {
+
+/* โลโก้หมุน */
+.logo {
   width: 120px;
   height: 120px;
-  border-radius: 20px;
-  object-fit: cover;
-  margin-bottom: 30px;
-  box-shadow: 0 0 25px rgba(255,215,0,0.6);
+  border-radius: 50%;
+  box-shadow: var(--shadow);
+  animation: spin 12s linear infinite;
+  margin-top: 80px;
+  position: relative;
+  z-index: 2;
 }
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* หัวข้อหลัก */
+h1 {
+  font-size: 2.5em;
+  color: var(--gold);
+  text-shadow: var(--shadow);
+  margin: 20px 0 10px;
+  position: relative;
+  z-index: 2;
+}
+
+/* คำโปรย */
+h2 {
+  font-size: 1.1em;
+  color: #ccc;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 2;
+}
+
+/* ปุ่มเข้าชุมชน */
+.button-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  position: relative;
+  z-index: 2;
+}
+
 button {
-  background: var(--neon);
-  color: #000;
+  background: linear-gradient(90deg, #ffb700, #ffd700, #ffb700);
   border: none;
-  padding: 10px 25px;
-  border-radius: 8px;
+  color: #000;
   font-weight: bold;
-  margin-top: 40px;
+  font-size: 1em;
+  padding: 14px 32px;
+  border-radius: 50px;
+  box-shadow: 0 0 20px rgba(255,215,0,0.6);
   cursor: pointer;
   transition: 0.3s;
+  animation: glowPulse 2s infinite;
+}
+@keyframes glowPulse {
+  0%,100% { box-shadow: 0 0 25px rgba(255,215,0,0.7); transform: scale(1); }
+  50% { box-shadow: 0 0 45px rgba(255,255,150,0.9); transform: scale(1.05); }
 }
 button:hover {
-  box-shadow: 0 0 25px var(--neon);
+  background: linear-gradient(90deg, #00ffd5, #00bfff);
+  color: #fff;
+  text-shadow: 0 0 10px #00ffd5;
 }
-.footer {
-  margin-top: 40px;
-  color: #888;
-  font-size: 0.8rem;
+
+/* แสงวิ่งอวกาศ */
+.stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  z-index: 1;
+}
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  width: 2px;
+  height: 2px;
+  opacity: 0.8;
+  animation: twinkle 3s infinite ease-in-out;
+}
+@keyframes twinkle {
+  0%,100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.6); }
+}
+
+/* ฟุตเตอร์ */
+footer {
+  margin-top: 80px;
+  color: #999;
+  font-size: 0.9em;
+  position: relative;
+  z-index: 2;
+  padding-bottom: 50px;
 }
 </style>
 </head>
 <body>
+<div class="bg-glow"></div>
+<div class="stars" id="stars"></div>
 
-<img src="logo.png" alt="GDSX Logo">
-<h1>👥 GDSX COMMUNITY</h1>
-<h2>เข้าร่วมชุมชนทองคำแห่งอนาคต</h2>
+<img class="logo" src="https://raw.githubusercontent.com/gdsxfinance/assets/main/gdsx_logo_gold.png" alt="GDSX Logo">
+<h1>👥 GDSX Community</h1>
+<h2>เข้าร่วมโลกแห่งทองคำดิจิทัล — พบเพื่อนนักลงทุนทั่วโลก</h2>
 
-<div class="links">
-  <a href="https://line.me/ti/g2/t44D0DT7Eo9O3cvmkYoXVy8VzyqGQ1EocvXuzg?utm_source=invitation&utm_medium=link_copy&utm_campaign=default" target="_blank">💬 เข้ากลุ่ม LINE Community</a>
-  <a href="https://t.me/GDSX_Official" target="_blank">📢 เข้ากลุ่ม Telegram</a>
-  <a href="https://www.facebook.com/share/19zqBPWim1/?mibextid=wwXIfr" target="_blank">📘 Facebook Page</a>
-  <a href="https://gdsxfinance.github.io" target="_blank">🌐 Official Website</a>
+<div class="button-container">
+  <button onclick="window.open('https://line.me/ti/g2/JqKfUzWcL7UpzA','_blank')">💬 LINE OpenChat</button>
+  <button onclick="window.open('https://t.me/gdsxcommunity','_blank')">📢 Telegram</button>
+  <button onclick="window.open('https://facebook.com/gdsxfinance','_blank')">📘 Facebook</button>
+  <button onclick="window.open('https://youtube.com/@gdsxofficial','_blank')">▶️ YouTube</button>
 </div>
 
-<a href="index.html"><button>🏠 กลับหน้าแรก</button></a>
+<footer>© 2025 GDSX Finance — The Future of Digital Gold 💎</footer>
 
-<div class="footer">© 2025 GDSX Finance — Powered by Gold Digital System X</div>
-
+<script>
+// 🌟 สร้างดาวกระพริบพื้นหลัง
+const starsContainer = document.getElementById('stars');
+for (let i = 0; i < 70; i++) {
+  const star = document.createElement('div');
+  star.classList.add('star');
+  star.style.top = Math.random() * 100 + '%';
+  star.style.left = Math.random() * 100 + '%';
+  star.style.animationDelay = Math.random() * 3 + 's';
+  starsContainer.appendChild(star);
+}
+</script>
 </body>
 </html>
