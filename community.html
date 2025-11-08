@@ -173,11 +173,36 @@ footer {
   cursor: pointer;
   text-shadow: 0 0 10px gold;
 }
+
+/* ✅ ปุ่มกลับซ้ายบน */
+.back-btn {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  background: rgba(255,215,0,0.15);
+  border: 1px solid gold;
+  color: gold;
+  font-weight: bold;
+  font-size: 0.9em;
+  padding: 6px 12px;
+  border-radius: 25px;
+  cursor: pointer;
+  z-index: 100;
+  transition: 0.3s;
+}
+.back-btn:hover {
+  background: gold;
+  color: #000;
+  box-shadow: 0 0 15px gold;
+}
 </style>
 </head>
 <body>
 <div class="bg-glow"></div>
 <div class="stars" id="stars"></div>
+
+<!-- ✅ ปุ่มกลับ -->
+<button class="back-btn" onclick="history.back()">← กลับ</button>
 
 <img class="logo" src="https://raw.githubusercontent.com/gdsxfinance/gdsxfinance.github.io/main/logo.png" alt="GDSX Logo">
 <h1>👥 GDSX Community</h1>
