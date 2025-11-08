@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💰 BUY GDSX PRO v3.4 — Auto Mobile Link</title>
+<title>💰 BUY GDSX PRO v3.5 — Auto Mobile Link Fixed</title>
 <style>
 :root{--gold:#ffd700;--neon:#00ffd5;}
 body{
@@ -30,6 +30,7 @@ button{
   background:linear-gradient(90deg,#00ffcc,#00cc99);color:#111;border:none;
   box-shadow:0 0 20px rgba(0,255,204,.7);
 }
+.buy:hover{transform:scale(1.05);box-shadow:0 0 25px rgba(0,255,204,1);}
 .back{
   background:linear-gradient(90deg,#333,#555);
   color:var(--gold);border:1px solid var(--gold);
@@ -49,31 +50,33 @@ footer p{color:var(--gold);white-space:nowrap;font-size:.9em;font-weight:600;
 
 <div class="panel">
   <input id="usdtAmount" type="number" placeholder="(ไม่ต้องใส่ก็ได้)">
-  <button class="buy" onclick="goSwap()">💎 SWAP NOW</button><br>
+  <button class="buy" id="swapNow">💎 SWAP NOW</button><br>
   <button class="back" onclick="location.href='index.html'">⬅️ กลับหน้าแรก</button>
 </div>
 
 <footer><p>🌟 GDSX Finance — The Future of Digital Gold • 2025 🌟</p></footer>
 
 <script>
-function goSwap(){
+document.getElementById("swapNow").addEventListener("click", () => {
   const USDT = "0x55d398326f99059fF775485246999027B3197955";
   const GDSX = "0xFa9d637329C79bCa321e2Bf0179ae78Bcb3d235a";
-  const swapURL = `https://pancakeswap.finance/swap?inputCurrency=${USDT}&outputCurrency=${GDSX}`;
-  const deepLink = `metamask://dapp/pancakeswap.finance/swap?inputCurrency=${USDT}&outputCurrency=${GDSX}`;
-
-  // ตรวจอุปกรณ์
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const pancakeURL = `https://pancakeswap.finance/swap?inputCurrency=${USDT}&outputCurrency=${GDSX}`;
   
-  if(isMobile){
-    // เปิดใน MetaMask App โดยตรง
-    window.location.href = deepLink;
-    setTimeout(()=>{ window.open(swapURL, "_blank"); }, 1500);
+  // ตรวจสอบว่าเป็นมือถือหรือไม่
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isMetaMaskApp = /MetaMask/i.test(navigator.userAgent);
+
+  if (isMetaMaskApp) {
+    // ถ้าเปิดผ่าน MetaMask DApp Browser
+    window.location.href = pancakeURL;
+  } else if (isMobile) {
+    // ถ้ามือถือทั่วไป ให้เปิดในเบราว์เซอร์ใหม่ (Chrome / Safari)
+    window.open(pancakeURL, "_blank");
   } else {
-    // เปิดในคอมปกติ → หน้า PancakeSwap
-    window.open(swapURL, "_blank");
+    // ถ้าเปิดจากคอมพิวเตอร์
+    window.open(pancakeURL, "_blank");
   }
-}
+});
 </script>
 </body>
 </html>
