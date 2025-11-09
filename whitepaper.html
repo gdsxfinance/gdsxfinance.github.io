@@ -3,96 +3,71 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📜 GDSX WHITEPAPER</title>
+<title>📘 GDSX Whitepaper — The Future of Digital Gold</title>
 <style>
 :root {
-  --gold:#ffd700;
-  --neon:#00ffd5;
+  --bg: #fff;
+  --text: #000;
 }
 body {
-  background: radial-gradient(circle at top,#000 40%,#111 100%);
-  color:#fff;
-  font-family:"Poppins","Noto Sans Thai",sans-serif;
-  text-align:center;
-  padding:80px 20px;
-  margin:0;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Poppins", sans-serif;
+  text-align: center;
 }
-h1 {
-  color:var(--gold);
-  text-shadow:0 0 15px var(--gold),0 0 30px #ffb700;
-  font-size:2rem;
-  margin-bottom:10px;
-}
-h2 {
-  color:var(--neon);
-  text-shadow:0 0 10px var(--neon);
-  font-size:1rem;
-  margin-bottom:40px;
-}
-.container {
-  background:#111;
-  border:1px solid #333;
-  border-radius:15px;
-  padding:30px;
-  margin:auto;
-  width:90%;
-  max-width:600px;
-  box-shadow:0 0 20px rgba(255,215,0,0.2);
+.topbar {
+  position: fixed;
+  top: 10px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+  z-index: 10;
 }
 button {
-  background:var(--gold);
-  border:none;
-  padding:12px 25px;
-  margin:10px;
-  border-radius:10px;
-  font-weight:bold;
-  cursor:pointer;
-  transition:0.3s;
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: 0.2s;
 }
-button:hover {box-shadow:0 0 25px var(--gold);}
-.neon {
-  background:var(--neon);
-  color:#000;
-}
-.neon:hover {box-shadow:0 0 25px var(--neon);}
-.footer {
-  margin-top:50px;
-  color:#888;
-  font-size:0.8rem;
+button:hover { color: #999; }
+img.page {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 30px;
+  display: block;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
 }
 </style>
 </head>
 <body>
 
-<h1>📜 GDSX WHITEPAPER</h1>
-<h2>ระบบทองคำดิจิทัลแห่งอนาคต — The Future of Digital Gold</h2>
-
-<div class="container">
-  <p style="font-size:1.1rem;line-height:1.6;">
-    เอกสารนี้อธิบายวิสัยทัศน์ โครงสร้าง และระบบเศรษฐกิจของเหรียญ <b>GDSX (Gold Digital System X)</b><br><br>
-    This document presents the vision, tokenomics, and ecosystem design of <b>GDSX Token</b>, 
-    the new-generation digital gold on Binance Smart Chain (BSC).
-  </p>
-
-  <div style="margin-top:25px;">
-    <a href="GDSX_Whitepaper_v1.0_EN.pdf" target="_blank">
-      <button>🔽 Download Whitepaper (EN)</button>
-    </a>
-    <a href="GDSX_Whitepaper_v1.2_TH.pdf" target="_blank">
-      <button class="neon">🔽 ดาวน์โหลดฉบับภาษาไทย (TH)</button>
-    </a>
-  </div>
-
-  <div style="margin-top:25px;">
-    <a href="https://gdsxfinance.github.io/whitepaper-view.html" target="_blank">
-      <button>🌐 View Online (Full Screen)</button>
-    </a>
-  </div>
+<div class="topbar">
+  <button onclick="window.history.back()">⬅ Back</button>
+  <button onclick="toggleLang()">🌐 ไทย / EN</button>
 </div>
 
-<a href="index.html"><button class="neon" style="margin-top:40px;">🏠 กลับหน้าแรก</button></a>
+<div id="whitepaper">
+  <img src="assets/whitepaper/1_cover.png" class="page">
+  <img src="assets/whitepaper/2_intro.png" class="page">
+  <img src="assets/whitepaper/3_vision.png" class="page">
+  <img src="assets/whitepaper/4_core.png" class="page">
+  <img src="assets/whitepaper/5_whyhold.png" class="page">
+  <img src="assets/whitepaper/6_tokenomics.png" class="page">
+  <img src="assets/whitepaper/7_roadmap.png" class="page">
+  <img src="assets/whitepaper/8_contact.png" class="page">
+</div>
 
-<div class="footer">© 2025 GDSX Finance — Powered by Gold Digital System X</div>
-
+<script>
+function toggleLang(){
+  window.location.href = window.location.href.includes('th')
+    ? 'whitepaper.html'
+    : 'whitepaper-th.html';
+}
+</script>
 </body>
 </html>
