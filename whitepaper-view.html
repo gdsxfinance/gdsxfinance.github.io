@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📘 GDSX Whitepaper — Full View</title>
+<style>
+body {
+  margin: 0;
+  background: #fff;
+  color: #000;
+  font-family: "Poppins", sans-serif;
+  text-align: center;
+}
+.topbar {
+  position: fixed;
+  top: 10px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+  z-index: 10;
+}
+button {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: 0.2s;
+}
+button:hover { color: #999; }
+img.page {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 30px;
+  display: block;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button onclick="window.history.back()">⬅ Back</button>
+  <button onclick="toggleLang()">🌐 ไทย / EN</button>
+</div>
+
+<div id="whitepaper">
+  <img src="assets/whitepaper/1_cover.png" class="page" alt="Cover">
+  <img src="assets/whitepaper/2_intro.png" class="page" alt="Introduction">
+  <img src="assets/whitepaper/3_vision.png" class="page" alt="Vision & Mission">
+  <img src="assets/whitepaper/4_core.png" class="page" alt="Core Values">
+  <img src="assets/whitepaper/5_whyhold.png" class="page" alt="Why Hold GDSX">
+  <img src="assets/whitepaper/6_tokenomics.png" class="page" alt="Tokenomics">
+  <img src="assets/whitepaper/7_roadmap.png" class="page" alt="Roadmap">
+  <img src="assets/whitepaper/8_contact.png" class="page" alt="Contact">
+</div>
+
+<script>
+function toggleLang(){
+  window.location.href = window.location.href.includes('th')
+    ? 'whitepaper-view.html'
+    : 'whitepaper-view-th.html';
+}
+</script>
+</body>
+</html>
