@@ -19,22 +19,20 @@ body {
   width: 100%;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 10px 20px;
   z-index: 10;
 }
-button {
-  background: none;
-  border: none;
-  font-size: 14px;
-  color: #333;
-  cursor: pointer;
-  transition: 0.2s;
+.logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
 }
-button:hover { color: #999; }
 img.page {
   width: 100%;
   max-width: 900px;
-  margin: 0 auto 30px;
+  margin: 60px auto 30px;
   display: block;
   box-shadow: 0 0 8px rgba(0,0,0,0.1);
 }
@@ -43,8 +41,7 @@ img.page {
 <body>
 
 <div class="topbar">
-  <button onclick="window.history.back()">⬅ Back</button>
-  <button onclick="toggleLang()">🌐 ไทย / EN</button>
+  <img src="assets/logo-gdsx.png" class="logo" alt="GDSX Logo">
 </div>
 
 <div id="whitepaper">
@@ -58,12 +55,22 @@ img.page {
   <img src="assets/whitepaper/8_contact.png" class="page" alt="Contact">
 </div>
 
-<script>
-function toggleLang(){
-  window.location.href = window.location.href.includes('th')
-    ? 'whitepaper-view.html'
-    : 'whitepaper-view-th.html';
+<!-- 🌐 Google Translate language switch -->
+<div id="google_translate_element"
+     style="position:fixed;top:10px;right:10px;z-index:10;background:#fff;padding:5px 10px;
+     border-radius:8px;box-shadow:0 0 6px rgba(0,0,0,0.1);">
+</div>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    includedLanguages: 'en,th',
+    layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+  }, 'google_translate_element');
 }
 </script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
 </body>
 </html>
