@@ -3,169 +3,172 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💰 BUY GDSX — Digital Gold System</title>
+<title>💰 BUY GDSX — Space Edition</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <style>
 :root { --gold:#ffd700; --neon:#00ffd5; }
 body {
-  background: radial-gradient(circle at top,#000 40%,#111 100%);
-  color:#fff; font-family:"Poppins","Noto Sans Thai",sans-serif;
-  text-align:center; overflow-x:hidden; min-height:100vh; margin:0;
+  margin:0; padding:0; color:#fff;
+  font-family:"Poppins","Noto Sans Thai",sans-serif;
+  background:radial-gradient(circle at top,#000 30%,#0a0a1a 90%);
+  overflow:hidden; min-height:100vh; text-align:center;
 }
-.logo {
-  width:90px;height:90px;border-radius:50%;object-fit:cover;
-  margin-top:25px;box-shadow:0 0 30px rgba(255,215,0,0.8);
-  animation:spin 10s linear infinite;
+
+/* 🌌 Moving star background */
+@keyframes stars { from{background-position:0 0,0 0;} to{background-position:-10000px 5000px,10000px 5000px;} }
+body::before {
+  content:""; position:fixed; top:0; left:0; width:200%; height:200%;
+  background:url("https://i.ibb.co/6D0tGd6/stars.png") repeat;
+  background-size:contain; animation:stars 180s linear infinite;
+  opacity:0.25; z-index:-1;
 }
-@keyframes spin {from{transform:rotate(0)}to{transform:rotate(360deg)}}
-h1 {color:var(--gold);text-shadow:0 0 10px rgba(255,215,0,.6);font-size:1.8em;margin-top:10px;}
-.subtitle {color:var(--neon);font-size:.9em;margin-bottom:20px;}
+
+h1 {
+  color:var(--gold);
+  text-shadow:0 0 25px var(--gold),0 0 45px #ffb700;
+  margin-top:60px; font-size:2em;
+}
+.subtitle {
+  color:var(--neon);
+  text-shadow:0 0 15px var(--neon);
+  font-size:1em; margin-bottom:30px;
+}
+
 .panel {
-  background:rgba(20,20,20,.85);border:1px solid var(--gold);
-  border-radius:16px;padding:25px;margin:10px auto 100px auto;
-  width:90%;max-width:420px;box-shadow:0 0 15px rgba(255,215,0,.3);
+  background:rgba(20,20,40,.85);
+  border:1px solid var(--gold);
+  border-radius:18px;
+  width:90%; max-width:400px; margin:auto; padding:25px;
+  box-shadow:0 0 25px rgba(255,215,0,.4);
 }
+
+.data {
+  background:rgba(0,0,0,.5); border:1px solid rgba(255,215,0,.3);
+  border-radius:12px; padding:10px; margin:10px 0;
+  text-align:left; font-size:.9em;
+}
+.data span { float:right; color:var(--gold); }
+
 input {
-  width:100%;padding:10px;margin-top:8px;border-radius:10px;
-  border:1px solid rgba(255,215,0,.3);text-align:center;
-  background:#111;color:#fff;font-size:1em;
+  width:100%; padding:10px; margin-top:10px;
+  border-radius:10px; border:1px solid rgba(255,215,0,.4);
+  background:#111; color:#fff; text-align:center;
 }
+
 button {
-  background:linear-gradient(90deg,#222,#444);color:var(--gold);
-  border:1px solid var(--gold);border-radius:10px;padding:10px 20px;
-  margin:5px;cursor:pointer;transition:.3s;
+  border:none; border-radius:10px; padding:12px 20px;
+  margin-top:15px; cursor:pointer; font-weight:700;
+  transition:.3s;
 }
-button:hover {background:rgba(255,215,0,0.2);}
-button.buy {
-  background:linear-gradient(90deg,#00ffcc,#00cc99);
-  color:#111;font-weight:700;border:none;border-radius:12px;
-  padding:12px 25px;cursor:pointer;box-shadow:0 0 20px rgba(0,255,204,.7);
+#swapBtn {
+  background:linear-gradient(90deg,#00ffd5,#00cc99);
+  color:#000; font-size:1.1em; box-shadow:0 0 20px rgba(0,255,204,.8);
 }
-button.back {
-  background:linear-gradient(90deg,#ffd700,#ffcc33);
-  color:#111;font-weight:700;border:none;border-radius:12px;
-  padding:10px 25px;margin-top:10px;
-  box-shadow:0 0 15px rgba(255,215,0,.6);
+#swapBtn:hover { box-shadow:0 0 30px rgba(255,255,255,1); }
+#backBtn {
+  background:linear-gradient(90deg,#ffcc33,#ffb300);
+  color:#000; margin-top:10px;
 }
+#backBtn:hover { box-shadow:0 0 25px gold; }
+
+footer { margin-top:40px; color:var(--gold); font-size:.9em; }
+
 .toast {
-  position:fixed;left:50%;bottom:60px;transform:translateX(-50%);
-  background:rgba(20,20,20,.95);border:1px solid var(--gold);
-  color:#fff;padding:8px 14px;border-radius:10px;
-  box-shadow:0 0 12px rgba(255,215,0,.35);display:none;z-index:1600;
+  position:fixed; left:50%; bottom:60px; transform:translateX(-50%);
+  background:rgba(20,20,20,.95); border:1px solid var(--gold);
+  color:#fff; padding:8px 14px; border-radius:10px;
+  box-shadow:0 0 12px rgba(255,215,0,.35);
+  display:none; z-index:1600;
 }
 .toast.show{display:block;}
-.connect-btn {
-  position:fixed;top:12px;right:15px;width:55px;height:55px;
-  border-radius:50%;border:none;cursor:pointer;
-  background:radial-gradient(circle,#ffcc33 10%,#b8860b 80%);
-  box-shadow:0 0 20px rgba(255,215,0,0.8);
-  animation:btnPulse 2s infinite alternate;
-}
-@keyframes btnPulse {
-  from{box-shadow:0 0 10px rgba(255,215,0,0.5);}
-  to{box-shadow:0 0 25px rgba(255,255,150,1);}
-}
-.connect-btn:after {content:"🪙";font-size:22px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
-footer {
-  position:fixed;bottom:0;background:#111;border-top:2px solid rgba(255,215,0,0.5);
-  width:100%;overflow:hidden;height:30px;
-}
-footer p {
-  display:inline-block;white-space:nowrap;color:var(--gold);font-weight:600;font-size:.9em;
-  animation:scrollText 18s linear infinite;text-shadow:0 0 6px var(--gold);margin-top:2px;
-}
-@keyframes scrollText {from{transform:translateX(100%);}to{transform:translateX(-100%);} }
 </style>
 </head>
-
 <body>
-<img class="logo" src="logo.png" alt="GDSX Logo">
 <h1>💰 BUY GDSX</h1>
-<p class="subtitle">ซื้อเหรียญ GDSX ด้วย USDT — ระบบทองคำดิจิทัลแห่งยุคใหม่</p>
-
-<button class="connect-btn" onclick="connect()"></button>
+<p class="subtitle">1 USDT = 10 GDSX — The Future of Digital Gold 🌌</p>
 
 <div class="panel">
-  <p>1 USDT = <b>10 GDSX</b></p>
-  <p>Your USDT Balance: <b id="usdtBal">0.0000</b></p>
-  <input type="number" id="usdtAmount" placeholder="Enter amount (USDT)">
-  <p id="gdsxResult">You will receive: 0 GDSX</p>
-  <button class="buy" onclick="quickBuy()">⚡ BUY NOW (FAST)</button>
-  <button class="back" onclick="goBack()">🔙 กลับหน้าหลัก</button>
+  <div class="data">Wallet <span id="wallet">—</span></div>
+  <div class="data">USDT Balance <span id="usdtBal">0.00</span></div>
+  <div class="data">GDSX Balance <span id="gdsxBal">0.00</span></div>
+  <div class="data">BNB Balance <span id="bnbBal">0.00</span></div>
+
+  <input type="number" id="amount" placeholder="Enter USDT amount" />
+
+  <button id="swapBtn" onclick="buy()">🚀 SWAP NOW</button>
+  <button id="backBtn" onclick="window.location.href='index.html'">↩️ Back to Farm</button>
 </div>
 
-<footer><p>🌟 The Future of Digital Gold • GDSX Finance © 2025 🌟</p></footer>
+<footer>Powered by GDSX Finance © 2025</footer>
 <div id="toast" class="toast"></div>
 
 <script>
-const CONTRACT="0x247036F7B77861e3aA5bF966466f43D29D3C962d"; // ✅ Payment Contract ใหม่
-const USDT="0x55d398326f99059fF775485246999027B3197955";    // USDT (BEP20)
-const rate=10;
-let provider,signer,account,usdt,contract;
+const PAYMENT="0x247036F7B77861e3aA5bF966466f43D29D3C962d";
+const USDT="0x55d398326f99059fF775485246999027B3197955"; // BSC USDT mainnet
+const GDSX="0xFa9d637329C79bCa321e2Bf0179ae78Bcb3d235a";
+let provider,signer,account,payContract,usdtContract,gdsxContract,decimals=18;
 
-const abiUSDT=[
-  "function approve(address spender,uint256 value) external returns(bool)",
-  "function balanceOf(address owner) view returns(uint256)"
-];
-const abiPay=[
-  "function buy(uint256 usdtAmount) external", 
-  "function rate() view returns(uint256)"
+const abiPay=["function buyGDSX(uint256 usdtAmount) public"];
+const abiErc20=[
+ "function approve(address spender,uint256 amount) external returns(bool)",
+ "function balanceOf(address) view returns(uint256)",
+ "function decimals() view returns(uint8)",
+ "function allowance(address owner,address spender) view returns(uint256)"
 ];
 
 const $=id=>document.getElementById(id);
-function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
+function showToast(msg){
+ const t=$("toast"); t.textContent=msg;
+ t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2200);
+}
 
 async function connect(){
-  try{
-    if(!window.ethereum){alert("Install MetaMask");return;}
-    provider=new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts",[]);
-    signer=provider.getSigner();
-    account=await signer.getAddress();
-    usdt=new ethers.Contract(USDT,abiUSDT,signer);
-    contract=new ethers.Contract(CONTRACT,abiPay,signer);
-    toast("✅ Wallet connected");
-    updateBalance();
-  }catch(e){console.log(e);toast("❌ Connect failed");}
+  if(!window.ethereum){alert("Please install MetaMask!");return;}
+  provider=new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send("eth_requestAccounts",[]);
+  signer=provider.getSigner(); account=await signer.getAddress();
+  payContract=new ethers.Contract(PAYMENT,abiPay,signer);
+  usdtContract=new ethers.Contract(USDT,abiErc20,signer);
+  gdsxContract=new ethers.Contract(GDSX,abiErc20,signer);
+  $("wallet").textContent=account.slice(0,6)+"..."+account.slice(-4);
+  refresh();
 }
 
-async function updateBalance(){
-  try{
-    const bal=await usdt.balanceOf(account);
-    const dec=ethers.utils.formatUnits(bal,18);
-    $("usdtBal").textContent=parseFloat(dec).toFixed(4);
-  }catch(e){$("usdtBal").textContent="—";}
+async function refresh(){
+  if(!signer)return;
+  const [uBal,gBal,ethBal]=await Promise.all([
+    usdtContract.balanceOf(account),
+    gdsxContract.balanceOf(account),
+    provider.getBalance(account)
+  ]);
+  $("usdtBal").textContent=(parseFloat(ethers.utils.formatUnits(uBal,18))).toFixed(2);
+  $("gdsxBal").textContent=(parseFloat(ethers.utils.formatUnits(gBal,18))).toFixed(2);
+  $("bnbBal").textContent=(parseFloat(ethers.utils.formatUnits(ethBal,18))).toFixed(4);
 }
 
-$("usdtAmount").addEventListener("input",()=>{
-  const v=parseFloat($("usdtAmount").value||0);
-  $("gdsxResult").textContent=`You will receive: ${(v*rate).toFixed(2)} GDSX`;
-});
-
-// 🪙 One-Click Fast Buy (Approve + Buy ในขั้นตอนเดียว)
-async function quickBuy(){
+async function buy(){
   if(!signer)return connect();
-  const amt=$("usdtAmount").value;
-  if(!amt||amt<=0)return toast("Enter amount > 0");
-  const val=ethers.utils.parseUnits(amt,18);
+  const val=$("amount").value;
+  if(!val||Number(val)<=0)return showToast("Enter amount");
+  const amt=ethers.utils.parseUnits(val,18);
   try{
-    toast("🚀 Processing Fast Purchase...");
-    const tx1=await usdt.approve(CONTRACT,val);
-    await tx1.wait();
-    const tx2=await contract.buy(val);
+    // Approve USDT
+    const allowance=await usdtContract.allowance(account,PAYMENT);
+    if(allowance.lt(amt)){
+      showToast("🔓 Approving USDT...");
+      const tx1=await usdtContract.approve(PAYMENT,ethers.constants.MaxUint256);
+      await tx1.wait(); showToast("✅ Approved!");
+    }
+    showToast("💰 Swapping...");
+    const tx2=await payContract.buyGDSX(amt);
     await tx2.wait();
-    toast("✅ Purchase complete!");
-    $("usdtAmount").value="";
-    $("gdsxResult").textContent="You will receive: 0 GDSX";
-    updateBalance();
-  }catch(e){console.log(e);toast("❌ Transaction failed");}
+    showToast("✅ Swap success!");
+    refresh();
+  }catch(e){console.error(e);showToast("Swap failed ❌");}
 }
 
-// 🔙 กลับหน้าหลัก (สามารถเปลี่ยน URL ได้)
-function goBack(){
-  window.location.href="index.html"; // 👉 แก้เป็น URL หน้าเว็บหลัก เช่น: "https://gdsxfinance.github.io/"
-}
+window.addEventListener("load",connect);
 </script>
 </body>
 </html>
