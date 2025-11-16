@@ -222,17 +222,18 @@ let provider,signer,account,token,staking,decimals=18,lang="en";
 const abiToken=[
 "function approve(address spender,uint256 amount) external returns(bool)",
 "function balanceOf(address) view returns(uint256)",
-"function decimals() view returns(uint8)",
 "function allowance(address owner,address spender) view returns(uint256)"
 ];
+
 const abiStaking=[
-"function deposit(uint256 amount) public",
-"function withdraw(uint256 amount) public",
+"function deposit(uint256 amount) external",
+"function withdraw(uint256 amount) external",
 "function users(address) view returns (uint256 amount,uint256 rewardDebt)",
 "function pendingReward(address userAddr) view returns (uint256)"
 ];
 
 const $=id=>document.getElementById(id);
+
 function showToast(msg){
   const t=$("toast");
   t.textContent=msg;
@@ -240,150 +241,106 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove("show"),2200);
 }
 
-function toggleMenu(){
-  const menu=$("popupMenu");
-  menu.classList.toggle("active");
-  document.addEventListener("click",e=>{
-    if(!menu.contains(e.target) && !e.target.closest(".menu-toggle"))
-      menu.classList.remove("active");
-  });
-}
-
-function toggleLang(){
-  lang=(lang==="en")?"th":"en";
-  const text={
-    en:{wallet:"Wallet",total:"Total GDSX",stake:"Your Stake",reward:"Pending Rewards",deposit:"Deposit",withdraw:"Withdraw",claim:"Claim",buy:"BUY GDSX",refresh:"Refresh",placeholder:"Enter amount GDSX"},
-    th:{wallet:"กระเป๋า",total:"ยอดรวม GDSX",stake:"ยอดฝาก",reward:"รางวัลค้างรับ",deposit:"ฝาก",withdraw:"ถอน",claim:"รับรางวัล",buy:"ซื้อ GDSX",refresh:"รีเฟรช",placeholder:"กรอกจำนวน GDSX"}
-  }[lang];
-  $("walletBox").childNodes[0].textContent=text.wallet;
-  $("totalBox").childNodes[0].textContent=text.total;
-  $("stakeBox").childNodes[0].textContent=text.stake;
-  $("rewardBox").childNodes[0].textContent=text.reward;
-  $("btnDeposit").textContent=text.deposit;
-  $("btnWithdraw").textContent=text.withdraw;
-  $("btnClaim").textContent=text.claim;
-  $("btnBuy").textContent=text.buy;
-  $("btnRefresh").textContent=text.refresh;
-  $("amount").placeholder=text.placeholder;
-  $("lang-btn").textContent=(lang==="en")?"EN":"TH";
-  updatePopupLang();
-}
-
 async function connect(){
   try{
-    if(!window.ethereum){alert("Please install MetaMask!");return;}
+    if(!window.ethereum) return alert("Please install MetaMask");
+
     provider=new ethers.providers.Web3Provider(window.ethereum);
     await provider.send("eth_requestAccounts",[]);
     signer=provider.getSigner();
     account=await signer.getAddress();
-    token=new ethers.Contract(TOKEN,abiToken,signer);
-    staking=new ethers.Contract(STAKING,abiStaking,signer);
-    $("wallet").textContent=account.slice(0,6)+"..."+account.slice(-4);
-    showToast("✅ Wallet connected");
-    refresh();
-  }catch(e){console.error(e);showToast("Connection cancelled!");}
-}
 
-async function getPriceUSD(){
-  try{
-    const res=await fetch(`https://api.pancakeswap.info/api/v2/tokens/${TOKEN}`);
-    const j=await res.json();
-    if(j.data?.price)return parseFloat(j.data.price);
-  }catch(e){console.log("price fetch fail",e);}
-  return 0;
+    token = new ethers.Contract(TOKEN, abiToken, signer);
+    staking = new ethers.Contract(STAKING, abiStaking, signer);
+
+    $("wallet").textContent=account.slice(0,6)+"..."+account.slice(-4);
+    showToast("Wallet Connected");
+    refresh();
+  }catch(err){
+    console.error(err);
+    showToast("Connection cancelled");
+  }
 }
 
 async function refresh(){
-  if(!signer)return connect();
-  showToast("🔄 Updating...");
-  const [u,pending,userBal,price]=await Promise.all([
+  if(!signer) return;
+
+  showToast("Updating...");
+
+  const [userData, pending, walletBal] = await Promise.all([
     staking.users(account),
     staking.pendingReward(account),
-    token.balanceOf(account),
-    getPriceUSD()
+    token.balanceOf(account)
   ]);
-  const stake=parseFloat(ethers.utils.formatUnits(u.amount,decimals));
-  const rew=parseFloat(ethers.utils.formatUnits(pending,decimals));
-  const walletBal=parseFloat(ethers.utils.formatUnits(userBal,decimals));
-  $("stake").textContent=stake.toFixed(4);
-  $("reward").textContent=rew.toFixed(4);
-  $("rewardUsd").textContent=`≈ $${(rew*price).toFixed(4)} USD`;
-  $("totalGdsx").textContent=walletBal.toFixed(4);
+
+  $("stake").textContent = parseFloat(ethers.utils.formatUnits(userData.amount,18)).toFixed(4);
+  $("reward").textContent = parseFloat(ethers.utils.formatUnits(pending,18)).toFixed(4);
+  $("totalGdsx").textContent = parseFloat(ethers.utils.formatUnits(walletBal,18)).toFixed(4);
 }
 
 async function deposit(){
+  if(!signer) return connect();
+
+  const val = $("amount").value;
+  if(!val || Number(val) <= 0) return showToast("Enter amount");
+
+  const amt = ethers.utils.parseUnits(val, decimals);
+
+  try{
+    // APPROVE
+    const allowance = await token.allowance(account, STAKING);
+    if (allowance.lt(amt)) {
+      showToast("Approving GDSX...");
+      const tx = await token.approve(STAKING, ethers.constants.MaxUint256);
+      await tx.wait();
+    }
+
+    // DEPOSIT
+    showToast("Depositing...");
+    const tx2 = await staking.deposit(amt);
+    await tx2.wait();
+
+    showToast("Deposit Success");
+    refresh();
+  }catch(err){
+    console.error(err);
+    showToast("Deposit failed");
+  }
+}
+
+async function withdraw(){
   if(!signer) return connect();
   const val = $("amount").value;
   if(!val || Number(val) <= 0) return showToast("Enter amount");
 
   const amt = ethers.utils.parseUnits(val, decimals);
-  try {
-    // ✅ ตรวจสอบว่า Approve แล้วหรือยัง
-    const allowance = await token.allowance(account, STAKING);
-    if (allowance.lt(amt)) {
-      showToast("🔓 Approving GDSX...");
-      const tx1 = await token.approve(STAKING, ethers.constants.MaxUint256);
-      await tx1.wait();
-      showToast("✅ Approved!");
-    }
 
-    // ✅ ฝากเลย (ไม่ต้องกดซ้ำ)
-    showToast("💰 Depositing...");
-    const tx2 = await staking.deposit(amt);
-    await tx2.wait();
+  try{
+    showToast("Withdrawing...");
+    const tx = await staking.withdraw(amt);
+    await tx.wait();
 
-    $("panelBox").style.boxShadow = "0 0 40px gold";
-    setTimeout(() => {
-      $("panelBox").style.boxShadow = "0 0 15px rgba(255,215,0,.3)";
-    }, 1200);
-
-    showToast("✅ Deposit success!");
+    showToast("Withdraw Success");
     refresh();
-  } catch (e) {
-    console.error(e);
-    showToast("Deposit failed ❌");
+  }catch(err){
+    console.error(err);
+    showToast("Withdraw failed");
   }
 }
 
-async function withdraw(){
-  if(!signer)return connect();
-  const val=$("amount").value;if(!val||Number(val)<=0)return showToast("Enter amount");
-  const amt=ethers.utils.parseUnits(val,decimals);
-  try{
-    showToast("Withdrawing...");
-    const tx=await staking.withdraw(amt);await tx.wait();
-    $("panelBox").style.boxShadow="0 0 40px #00ffd5";
-    setTimeout(()=>{$("panelBox").style.boxShadow="0 0 15px rgba(255,215,0,.3)";},1200);
-    showToast("📤 Withdraw success");refresh();
-  }catch(e){console.error(e);showToast("Withdraw failed");}
-}
-
 async function claim(){
-  if(!signer)return connect();
-  try{
-    showToast("Claiming...");
-    const tx=await staking.withdraw(0);await tx.wait();
-    $("panelBox").style.boxShadow="0 0 40px #ffb700";
-    setTimeout(()=>{$("panelBox").style.boxShadow="0 0 15px rgba(255,215,0,.3)";},1200);
-    showToast("🎁 Claim success");refresh();
-  }catch(e){console.error(e);showToast("Claim failed");}
-}
+  if(!signer) return connect();
 
-/* 🎈 Airdrop Popup */
-function showAirdropComingSoon(){
-  updatePopupLang();
-  document.getElementById("popup").style.display="block";
-}
-function closePopup(){document.getElementById("popup").style.display="none";}
-function updatePopupLang(){
-  const title=document.getElementById("popup-title");
-  const text=document.getElementById("popup-text");
-  if(lang==="en"){
-    title.textContent="🚀 Airdrop Coming Soon!";
-    text.innerHTML='Join early and be part of the next revolution in <b>Digital Gold</b>.<br>The future belongs to those who believe early. 💎';
-  }else{
-    title.textContent="🚀 Airdrop กำลังจะมาเร็ว ๆ นี้!";
-    text.innerHTML='เข้าร่วมก่อนใครและเป็นส่วนหนึ่งของการปฏิวัติ <b>ทองคำดิจิทัล</b>.<br>อนาคตเป็นของผู้ที่เชื่อมั่นตั้งแต่ต้น 💎';
+  try{
+    showToast("Claiming rewards...");
+    const tx = await staking.withdraw(0);
+    await tx.wait();
+
+    showToast("Claim success");
+    refresh();
+  }catch(err){
+    console.error(err);
+    showToast("Claim failed");
   }
 }
 </script>
