@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🌾 GDSX FARM ULTRA++</title>
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
 <style>
 body {
   background: radial-gradient(circle at top,#000 40%,#111 100%);
@@ -31,6 +32,7 @@ button:hover {box-shadow:0 0 20px #ffd700;}
 .footer {margin-top:40px;color:#888;font-size:0.8rem;}
 </style>
 </head>
+
 <body>
   <h1>🌾 GDSX FARM ULTRA++</h1>
   <p>The Future of Digital Gold — ระบบทองคำดิจิทัลแห่งยุคใหม่</p>
@@ -57,61 +59,136 @@ button:hover {box-shadow:0 0 20px #ffd700;}
 
   <div class="footer">© 2025 GDSX Finance — Powered by Gold Digital System X</div>
 
+
 <script>
-const farmAddress = "0xEc9913d971e43f5b4a0d260381e60595DCb7268e";
+// ========= Contract Setup =========
+const TOKEN = "0xFa9d637329C79bCa321e2Bf0179ae78Bcb3d235a";
+const FARM  = "0x5ab799F6366cEBFa80706b11CC6754C5B48e69a4";
+
 const farmABI = [
-  "function deposit(uint256 _amount) public",
-  "function withdraw(uint256 _amount) public",
-  "function claim() public",
-  "function getUserData(address _user) public view returns(uint256 stake,uint256 pending)"
+  "function deposit(uint256 amount) external",
+  "function withdraw(uint256 amount) external",
+  "function pendingReward(address user) public view returns(uint256)",
+  "function users(address user) public view returns(uint256 amount, uint256 rewardDebt)"
 ];
 
-let provider, signer, contract, userAddress;
+const tokenABI = [
+  "function approve(address spender, uint256 amount) external returns(bool)",
+  "function allowance(address owner, address spender) external view returns(uint256)",
+  "function balanceOf(address owner) external view returns(uint256)"
+];
 
+let provider, signer, farm, token, user;
+
+
+// ========= Connect Wallet =========
 async function connectWallet() {
-  if (!window.ethereum) return alert("⚠️ Please install MetaMask");
+  if (!window.ethereum) return alert("⚠️ กรุณาติดตั้ง MetaMask");
+
   provider = new ethers.providers.Web3Provider(window.ethereum);
   await provider.send("eth_requestAccounts", []);
   signer = provider.getSigner();
-  userAddress = await signer.getAddress();
-  document.getElementById("wallet").textContent = userAddress.slice(0,6)+"..."+userAddress.slice(-4);
-  contract = new ethers.Contract(farmAddress, farmABI, signer);
+  user = await signer.getAddress();
+
+  document.getElementById("wallet").textContent = user.slice(0,6)+"..."+user.slice(-4);
+
+  farm  = new ethers.Contract(FARM, farmABI, signer);
+  token = new ethers.Contract(TOKEN, tokenABI, signer);
+
   loadData();
 }
 
+
+// ========= Load Stake + Rewards =========
 async function loadData() {
+  if (!farm || !user) return;
+
   try {
-    const data = await contract.getUserData(userAddress);
-    document.getElementById("stake").textContent = parseFloat(ethers.utils.formatUnits(data[0],18)).toFixed(4);
-    document.getElementById("rewards").textContent = parseFloat(ethers.utils.formatUnits(data[1],18)).toFixed(4);
-  } catch(e){ console.log(e); }
+    const info = await farm.users(user);
+    const pending = await farm.pendingReward(user);
+
+    document.getElementById("stake").textContent =
+      parseFloat(ethers.utils.formatUnits(info.amount,18)).toFixed(4);
+
+    document.getElementById("rewards").textContent =
+      parseFloat(ethers.utils.formatUnits(pending,18)).toFixed(4);
+
+  } catch (err) {
+    console.log("Load error:", err);
+  }
 }
 
+
+// ========= Deposit =========
 async function deposit() {
-  const amt = document.getElementById("amount").value;
-  if(!amt) return alert("Enter amount");
-  try {
-    const tx = await contract.deposit(ethers.utils.parseUnits(amt,18));
-    await tx.wait(); alert("✅ Deposit success!"); loadData();
-  } catch(e){ alert("⚠️ Transaction failed"); console.log(e); }
-}
+  if (!signer) return alert("Connect wallet first");
 
-async function withdraw() {
   const amt = document.getElementById("amount").value;
-  if(!amt) return alert("Enter amount");
-  try {
-    const tx = await contract.withdraw(ethers.utils.parseUnits(amt,18));
-    await tx.wait(); alert("✅ Withdraw success!"); loadData();
-  } catch(e){ alert("⚠️ Transaction failed"); console.log(e); }
-}
+  if (!amt || amt <= 0) return alert("Enter amount");
 
-async function claim() {
+  const amountWei = ethers.utils.parseUnits(amt, 18);
+
   try {
-    const tx = await contract.claim();
-    await tx.wait(); alert("🎉 Rewards claimed!");
+    // approve ก่อน
+    const allowance = await token.allowance(user, FARM);
+    if (allowance.lt(amountWei)) {
+      const tx1 = await token.approve(FARM, amountWei);
+      await tx1.wait();
+    }
+
+    const tx = await farm.deposit(amountWei);
+    await tx.wait();
+
+    alert("✅ Deposit Success!");
     loadData();
-  } catch(e){ alert("⚠️ Claim failed"); console.log(e); }
+
+  } catch (err) {
+    console.log(err);
+    alert("⚠️ Deposit failed");
+  }
+}
+
+
+// ========= Withdraw =========
+async function withdraw() {
+  if (!signer) return alert("Connect wallet first");
+
+  const amt = document.getElementById("amount").value;
+  if (!amt || amt <= 0) return alert("Enter amount");
+
+  const amountWei = ethers.utils.parseUnits(amt, 18);
+
+  try {
+    const tx = await farm.withdraw(amountWei);
+    await tx.wait();
+
+    alert("✅ Withdraw Success!");
+    loadData();
+
+  } catch (err) {
+    console.log(err);
+    alert("⚠️ Withdraw failed");
+  }
+}
+
+
+// ========= Claim (withdraw 0) =========
+async function claim() {
+  if (!signer) return alert("Connect wallet first");
+
+  try {
+    const tx = await farm.withdraw(0);
+    await tx.wait();
+
+    alert("🎉 Rewards Claimed!");
+    loadData();
+
+  } catch (err) {
+    console.log(err);
+    alert("⚠️ Claim failed");
+  }
 }
 </script>
+
 </body>
 </html>
