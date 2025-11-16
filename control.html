@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>🚨 GDSX Emergency Control</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+<style>
+body {
+  background: #000;
+  color: white;
+  font-family: "Poppins", sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+h1 {
+  color: #ff4444;
+  text-shadow: 0 0 25px red;
+}
+button {
+  width: 90%;
+  padding: 15px;
+  margin: 8px;
+  font-size: 18px;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.on { background: #00c853; }
+.off { background: #d50000; }
+.action { background: #2962ff; }
+input {
+  width: 90%;
+  padding: 12px;
+  margin: 7px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+}
+</style>
+</head>
+
+<body>
+<h1>🚨 GDSX EMERGENCY CONTROL</h1>
+<p>Contract: <br><b style="color:#00ffd5">0xF354Fcf99241b58eA6DA8DD328068317A606CBC4</b></p>
+
+<button class="action" onclick="connect()">🔗 Connect Wallet</button>
+
+<h2>⚠️ Emergency Switch</h2>
+<button class="off" onclick="call('enableBuy', false)">⛔ ปิดซื้อ (Disable Buy)</button>
+<button class="off" onclick="call('enableSell', false)">⛔ ปิดขาย (Disable Sell)</button>
+<button class="off" onclick="call('openTrading')">⛔ ปิดเทรดทั้งหมด</button>
+
+<h2>✔ Recovery Switch</h2>
+<button class="on" onclick="call('enableBuy', true)">🟢 เปิดซื้อ (Enable Buy)</button>
+<button class="on" onclick="call('enableSell', true)">🟢 เปิดขาย (Enable Sell)</button>
+<button class="on" onclick="call('openTrading')">🟢 เปิดเทรดทั้งหมด</button>
+
+<h2>🛡 Anti-Bot & Anti-Dump</h2>
+<button class="on" onclick="call('setAntiDump', true)">🛡 เปิด AntiDump</button>
+<button class="off" onclick="call('setAntiDump', false)">⚠️ ปิด AntiDump</button>
+
+<input id="sniper" placeholder="Sniper Delay (seconds)">
+<button class="action" onclick="setSniper()">⚡ Set Sniper Delay</button>
+
+<h2>📉 Buy / Sell Limit</h2>
+<input id="buyLimit" placeholder="Buy Limit (wei)">
+<button class="action" onclick="setBuy()">Set Buy Limit</button>
+
+<input id="sellLimit" placeholder="Sell Limit (wei)">
+<button class="action" onclick="setSell()">Set Sell Limit</button>
+
+<h2>🚫 Bot Control</h2>
+<input id="botAddress" placeholder="Bot Address">
+<button class="off" onclick="addBot()">🚫 Add Bot</button>
+<button class="on" onclick="removeBot()">✔ Remove Bot</button>
+
+<h2>🟩 Whitelist</h2>
+<input id="whiteAddress" placeholder="Address to Whitelist">
+<button class="on" onclick="addWhite()">Add Whitelist</button>
+<button class="off" onclick="removeWhite()">Remove Whitelist</button>
+
+<script>
+const CONTRACT = "0xF354Fcf99241b58eA6DA8DD328068317A606CBC4";
+const ABI = [
+    "function enableBuy(bool)",
+    "function enableSell(bool)",
+    "function openTrading()",
+    "function setAntiDump(bool)",
+    "function setSniperDelay(uint256)",
+    "function setBuyLimit(uint256)",
+    "function setSellLimit(uint256)",
+    "function addBot(address)",
+    "function removeBot(address)",
+    "function addWhitelist(address)",
+    "function removeWhitelist(address)"
+];
+
+let provider, signer, contract;
+
+async function connect() {
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    signer = provider.getSigner();
+    contract = new ethers.Contract(CONTRACT, ABI, signer);
+    alert("Wallet Connected!");
+}
+
+async function call(func, value) {
+    try {
+        const tx = await contract[func](value);
+        alert("TX Sent: " + tx.hash);
+    } catch (e) { alert(e); }
+}
+
+async function setSniper() {
+    let val = document.getElementById("sniper").value;
+    call("setSniperDelay", val);
+}
+
+async function setBuy() {
+    let val = document.getElementById("buyLimit").value;
+    call("setBuyLimit", val);
+}
+
+async function setSell() {
+    let val = document.getElementById("sellLimit").value;
+    call("setSellLimit", val);
+}
+
+async function addBot() {
+    let addr = document.getElementById("botAddress").value;
+    call("addBot", addr);
+}
+
+async function removeBot() {
+    let addr = document.getElementById("botAddress").value;
+    call("removeBot", addr);
+}
+
+async function addWhite() {
+    let addr = document.getElementById("whiteAddress").value;
+    call("addWhitelist", addr);
+}
+
+async function removeWhite() {
+    let addr = document.getElementById("whiteAddress").value;
+    call("removeWhitelist", addr);
+}
+</script>
+</body>
+</html>
