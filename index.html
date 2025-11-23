@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌾 GDSX FARM ULTRA++</title>
+<title>🌾 MGX FARM ULTRA++</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <style>
@@ -162,14 +162,14 @@ footer p {
 
 <body>
 <img class="logo" src="logo.png" alt="GDSX Logo">
-<h1>🌾 GDSX FARM ULTRA++</h1>
+<h1>🌾 MGX FARM ULTRA++</h1>
 <p class="subtitle">The Future of Digital Gold — ระบบทองคำดิจิทัลแห่งยุคใหม่</p>
 
 <div class="menu-toggle" onclick="toggleMenu()">☰</div>
 <div class="popup-menu" id="popupMenu">
   <a href="#">🌾 Farm</a>
   <a href="#">💰 Treasury</a>
-  <a href="https://gdsxfinance.github.io/game.html" target="_blank">🎮 GDSX Game Center</a>
+  <a href="https://gdsxfinance.github.io/game.html" target="_blank">🎮 MGX Game Center</a>
   <a href="https://gdsxfinance.github.io/gdsx_fortune_intro.html" target="_blank"
      style="color:#ffd700;text-shadow:0 0 8px #ffea70;font-weight:600;animation:shine 2s infinite alternate;">🎴 เสี่ยงเซียมซี GDSX</a>
   <a href="https://gdsxfinance.github.io/whitepaper.html" target="_blank">📘 Whitepaper (EN/TH)</a>
@@ -183,22 +183,22 @@ footer p {
 <div class="panel" id="panelBox">
   <div class="data-box">
     <div class="box" id="walletBox">Wallet<span id="wallet">—</span></div>
-    <div class="box" id="totalBox">Total GDSX<span id="totalGdsx">0.0000</span></div>
+    <div class="box" id="totalBox">Total MGX<span id="totalGdsx">0.0000</span></div>
     <div class="box" id="stakeBox">Your Stake<span id="stake">0.0000</span></div>
     <div class="box" id="rewardBox">Pending Rewards<span id="reward">0.0000</span><small id="rewardUsd">≈ — USD</small></div>
   </div>
 
-  <input type="number" id="amount" placeholder="Enter amount GDSX">
+  <input type="number" id="amount" placeholder="Enter amount MGX">
 
   <div>
     <button id="btnDeposit" onclick="deposit()">Deposit</button>
     <button id="btnWithdraw" onclick="withdraw()">Withdraw</button>
     <button class="claim" id="btnClaim" onclick="claim()">Claim</button>
-    <button class="buy" id="btnBuy" onclick="window.location.href='https://gdsxfinance.github.io/buy-pro.html'">💰 BUY GDSX</button>
-    <a href="https://gdsxfinance.github.io/game.html" target="_blank" class="game-center-btn">🎮 GDSX Game Center</a>
+    <button class="buy" id="btnBuy" onclick="window.location.href='https://gdsxfinance.github.io/buy-pro.html'">💰 BUY MGX</button>
+    <a href="https://gdsxfinance.github.io/game.html" target="_blank" class="game-center-btn">🎮 MGX Game Center</a>
     <button id="btnRefresh" onclick="refresh()">Refresh</button>
   </div>
-  <div class="powered">Powered by DNX Finance © 2025</div>
+  <div class="powered">Powered by MGX Finance © 2025</div>
 </div>
 
 <footer><p>🌟 ระบบทองคำดิจิทัลแห่งยุคใหม่ • The Future of Digital Gold 🌟</p></footer>
@@ -214,9 +214,9 @@ footer p {
   <button onclick="closePopup()">OK</button>
 </div>
 <script>
-const TOKEN="0xFa9d637329C79bCa321e2Bf0179ae78Bcb3d235a";
-const TREASURY="0xEcd3965A43A5be3773Ab01A42F448576690Ec8e2";
-const STAKING="0x5ab799F6366cEBFa80706b11CC6754C5B48e69a4";
+const TOKEN="0xc2B5cf3312C532B628A2e510f4653B844c1597A9";
+const TREASURY="0x0a12e0c7180b0f5804789c06912d864af486ea77";
+const STAKING="0xa63Dbdd62E482633F8Ee7F240ed311Eb974120D3";
 let provider,signer,account,token,staking,decimals=18,lang="en";
 
 const abiToken=[
